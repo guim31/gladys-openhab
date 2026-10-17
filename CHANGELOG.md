@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-17
+
 ### Added
 
 - openHAB bridge: the items of an openHAB 4.x or 5.x server offered in the
@@ -31,3 +33,6 @@ the notes of the version's GitHub Release.
   added, items followed, and a Reload button.
 - "Test the connection" action, listing the item types not imported.
 - Texts and documentation in English, French, German and Spanish.
+
+[Unreleased]: https://github.com/guim31/gladys-openhab/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/guim31/gladys-openhab/releases/tag/v1.0.0
