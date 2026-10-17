@@ -1,0 +1,975 @@
+[
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Battery_Hall",
+    "state": "87",
+    "stateDescription": {
+      "pattern": "%d %%",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234798927,
+    "lastStateChange": 1792234798927,
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Energy"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number",
+    "name": "Battery_Hall",
+    "label": "Hall motion battery",
+    "tags": ["Energy", "Measurement"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Bedroom_Curtain",
+    "state": "50",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234763503,
+    "lastStateChange": 1792234763503,
+    "metadata": {
+      "semantics": {
+        "value": "Equipment_WindowCovering_Drapes",
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Rollershutter",
+    "name": "Bedroom_Curtain",
+    "label": "Bedroom curtain",
+    "tags": ["Drapes"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Bedroom_Setpoint",
+    "state": "18 °C",
+    "stateDescription": {
+      "minimum": 5,
+      "maximum": 30,
+      "step": 0.5,
+      "pattern": "%.1f °C",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234770513,
+    "lastStateChange": 1792234770513,
+    "unitSymbol": "°C",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Setpoint",
+        "config": {
+          "relatesTo": "Property_Temperature"
+        },
+        "editable": false
+      },
+      "stateDescription": {
+        "value": "",
+        "config": {
+          "max": 30,
+          "step": 0.5,
+          "min": 5
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Temperature",
+    "name": "Bedroom_Setpoint",
+    "label": "Bedroom setpoint",
+    "tags": ["Setpoint", "Temperature"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Boiler_Running",
+    "state": "ON",
+    "stateDescription": {
+      "readOnly": true,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234771198,
+    "lastStateChange": 1792234771198,
+    "metadata": {
+      "semantics": {
+        "value": "Point_Status",
+        "config": {
+          "relatesTo": "Property_Power"
+        },
+        "editable": false
+      },
+      "stateDescription": {
+        "value": "",
+        "config": {
+          "readOnly": true
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Switch",
+    "name": "Boiler_Running",
+    "label": "Boiler running",
+    "tags": ["Power", "Status"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Front_Door",
+    "state": "OPEN",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234615191,
+    "lastStateChange": 1792234615191,
+    "metadata": {
+      "semantics": {
+        "value": "Equipment_Door",
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Contact",
+    "name": "Front_Door",
+    "label": "Front door",
+    "tags": ["Door"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Front_Door_Lock",
+    "state": "ON",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234640113,
+    "lastStateChange": 1792234640113,
+    "metadata": {
+      "semantics": {
+        "value": "Equipment_Lock",
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Switch",
+    "name": "Front_Door_Lock",
+    "label": "Front door lock",
+    "tags": ["Lock"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Garage_Door",
+    "state": "100",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234762724,
+    "lastStateChange": 1792234762724,
+    "metadata": {
+      "semantics": {
+        "value": "Equipment_Door_GarageDoor",
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Rollershutter",
+    "name": "Garage_Door",
+    "label": "Garage door",
+    "tags": ["GarageDoor"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Gas_Meter",
+    "state": "4521.37 ㎥",
+    "stateDescription": {
+      "pattern": "%.2f m³",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234769092,
+    "lastStateChange": 1792234769092,
+    "unitSymbol": "㎥",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Gas"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Volume",
+    "name": "Gas_Meter",
+    "label": "Gas meter",
+    "tags": ["Gas", "Measurement"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Hall_Sensor_Battery",
+    "state": "0.92",
+    "stateDescription": {
+      "pattern": "%d %%",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "92",
+    "lastStateUpdate": 1792234798185,
+    "lastStateChange": 1792234798185,
+    "unitSymbol": "one",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Level"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Dimensionless",
+    "name": "Hall_Sensor_Battery",
+    "label": "Hall sensor battery",
+    "tags": ["Level", "Measurement"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Heating_Setpoint",
+    "state": "19.5 °C",
+    "stateDescription": {
+      "pattern": "%.1f °C",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234642949,
+    "lastStateChange": 1792234642949,
+    "unitSymbol": "°C",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Setpoint",
+        "config": {
+          "relatesTo": "Property_Temperature",
+          "hasLocation": "gLiving"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Temperature",
+    "name": "Heating_Setpoint",
+    "label": "Heating setpoint",
+    "tags": ["Setpoint", "Temperature"],
+    "groupNames": ["gLiving"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Home_Location",
+    "state": "48.8584,2.2945,0",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234645040,
+    "lastStateChange": 1792234645040,
+    "editable": false,
+    "type": "Location",
+    "name": "Home_Location",
+    "label": "Home",
+    "tags": [],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Kitchen_Plug",
+    "state": "ON",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234636099,
+    "lastStateChange": 1792234636099,
+    "metadata": {
+      "semantics": {
+        "value": "Equipment_PowerOutlet",
+        "config": {
+          "hasLocation": "gKitchen"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Switch",
+    "name": "Kitchen_Plug",
+    "label": "Coffee machine",
+    "tags": ["PowerOutlet"],
+    "groupNames": ["gKitchen"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Kitchen_Plug_Energy",
+    "state": "312.45 kWh",
+    "stateDescription": {
+      "pattern": "%.2f kWh",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234636729,
+    "lastStateChange": 1792234636729,
+    "unitSymbol": "kWh",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Energy",
+          "hasLocation": "gKitchen"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Energy",
+    "name": "Kitchen_Plug_Energy",
+    "label": "Coffee machine energy",
+    "tags": ["Energy", "Measurement"],
+    "groupNames": ["gKitchen"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Kitchen_Plug_Power",
+    "state": "1234.5 W",
+    "stateDescription": {
+      "pattern": "%.1f W",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234618188,
+    "lastStateChange": 1792234618188,
+    "unitSymbol": "W",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Power",
+          "hasLocation": "gKitchen"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Power",
+    "name": "Kitchen_Plug_Power",
+    "label": "Coffee machine power",
+    "tags": ["Power", "Measurement"],
+    "groupNames": ["gKitchen"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Kitchen_Window",
+    "state": "CLOSED",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234639453,
+    "lastStateChange": 1792234639453,
+    "metadata": {
+      "semantics": {
+        "value": "Equipment_Window",
+        "config": {
+          "hasLocation": "gKitchen"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Contact",
+    "name": "Kitchen_Window",
+    "label": "Kitchen window",
+    "tags": ["OpenState", "Window"],
+    "groupNames": ["gKitchen"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Last_Update",
+    "state": "2026-10-17T12:00:00.000+0200",
+    "stateDescription": {
+      "pattern": "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234644354,
+    "lastStateChange": 1792234644354,
+    "editable": false,
+    "type": "DateTime",
+    "name": "Last_Update",
+    "label": "Last update",
+    "tags": [],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Living_CO2",
+    "state": "0.000612",
+    "stateDescription": {
+      "pattern": "%d ppm",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234768467,
+    "lastStateChange": 1792234768467,
+    "unitSymbol": "one",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_AirQuality_CO2",
+          "hasLocation": "gLiving"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Dimensionless",
+    "name": "Living_CO2",
+    "label": "Living CO2",
+    "tags": ["CO2", "Measurement"],
+    "groupNames": ["gLiving"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Living_Humidity",
+    "state": "0.48",
+    "stateDescription": {
+      "pattern": "%d %%",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "48",
+    "lastStateUpdate": 1792234797527,
+    "lastStateChange": 1792234797527,
+    "unitSymbol": "one",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Humidity",
+          "hasLocation": "gLiving"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Dimensionless",
+    "name": "Living_Humidity",
+    "label": "Living humidity",
+    "tags": ["Humidity", "Measurement"],
+    "groupNames": ["gLiving"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Living_Light_Color",
+    "state": "120,100,50",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234613804,
+    "lastStateChange": 1792234613804,
+    "metadata": {
+      "semantics": {
+        "value": "Point_Control",
+        "config": {
+          "relatesTo": "Property_Light",
+          "isPointOf": "gLamp"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Color",
+    "name": "Living_Light_Color",
+    "label": "Ceiling lamp colour",
+    "tags": ["Light", "Control"],
+    "groupNames": ["gLamp"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Living_Light_Dimmer",
+    "state": "40",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234613143,
+    "lastStateChange": 1792234613143,
+    "metadata": {
+      "semantics": {
+        "value": "Point_Control",
+        "config": {
+          "relatesTo": "Property_Light",
+          "isPointOf": "gLamp"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Dimmer",
+    "name": "Living_Light_Dimmer",
+    "label": "Ceiling lamp brightness",
+    "tags": ["Light", "Control"],
+    "groupNames": ["gLamp"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Living_Light_Power",
+    "state": "ON",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234635336,
+    "lastStateChange": 1792234635336,
+    "metadata": {
+      "semantics": {
+        "value": "Point_Control_Switch",
+        "config": {
+          "relatesTo": "Property_Light",
+          "isPointOf": "gLamp"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Switch",
+    "name": "Living_Light_Power",
+    "label": "Ceiling lamp power",
+    "tags": ["Light", "Switch"],
+    "groupNames": ["gLamp"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Living_Lux",
+    "state": "350 lx",
+    "stateDescription": {
+      "pattern": "%d lx",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234638779,
+    "lastStateChange": 1792234638779,
+    "unitSymbol": "lx",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Light",
+          "hasLocation": "gLiving"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Illuminance",
+    "name": "Living_Lux",
+    "label": "Light level",
+    "tags": ["Light", "Measurement"],
+    "groupNames": ["gLiving"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Living_Shutter",
+    "state": "0",
+    "lastState": "30",
+    "lastStateUpdate": 1792234616678,
+    "lastStateChange": 1792234616678,
+    "metadata": {
+      "semantics": {
+        "value": "Equipment_WindowCovering_Blinds",
+        "config": {
+          "hasLocation": "gLiving"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Rollershutter",
+    "name": "Living_Shutter",
+    "label": "Living shutter",
+    "tags": ["Blinds"],
+    "groupNames": ["gLiving"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Living_Speaker_Control",
+    "state": "PLAY",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234617443,
+    "lastStateChange": 1792234617443,
+    "metadata": {
+      "semantics": {
+        "value": "Point_Control",
+        "config": {
+          "relatesTo": "Property_MediaControl",
+          "hasLocation": "gLiving"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Player",
+    "name": "Living_Speaker_Control",
+    "label": "Speaker",
+    "tags": ["MediaControl", "Control"],
+    "groupNames": ["gLiving"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Living_Speaker_Volume",
+    "state": "35",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234640773,
+    "lastStateChange": 1792234640773,
+    "metadata": {
+      "semantics": {
+        "value": "Point_Control",
+        "config": {
+          "relatesTo": "Property_SoundVolume",
+          "hasLocation": "gLiving"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Dimmer",
+    "name": "Living_Speaker_Volume",
+    "label": "Speaker volume",
+    "tags": ["SoundVolume", "Control"],
+    "groupNames": ["gLiving"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Living_Temperature",
+    "state": "21.5 °C",
+    "stateDescription": {
+      "pattern": "%.1f °C",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234614495,
+    "lastStateChange": 1792234614495,
+    "unitSymbol": "°C",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Temperature",
+          "hasLocation": "gLiving"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Temperature",
+    "name": "Living_Temperature",
+    "label": "Living temperature",
+    "tags": ["Temperature", "Measurement"],
+    "groupNames": ["gLiving"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Mains_Current",
+    "state": "2.35 A",
+    "stateDescription": {
+      "pattern": "%.2f A",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234766996,
+    "lastStateChange": 1792234766996,
+    "unitSymbol": "A",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Current"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:ElectricCurrent",
+    "name": "Mains_Current",
+    "label": "Mains current",
+    "tags": ["Current", "Measurement"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Mains_Voltage",
+    "state": "231 V",
+    "stateDescription": {
+      "pattern": "%.0f V",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234766313,
+    "lastStateChange": 1792234766313,
+    "unitSymbol": "V",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Voltage"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:ElectricPotential",
+    "name": "Mains_Voltage",
+    "label": "Mains voltage",
+    "tags": ["Voltage", "Measurement"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Motion_Hall",
+    "state": "OFF",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234641626,
+    "lastStateChange": 1792234641626,
+    "metadata": {
+      "semantics": {
+        "value": "Point_Alarm",
+        "config": {
+          "relatesTo": "Property_Presence"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Switch",
+    "name": "Motion_Hall",
+    "label": "Hall motion",
+    "tags": ["Presence", "Alarm"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Outdoor_Pressure",
+    "state": "1013.2 hPa",
+    "stateDescription": {
+      "pattern": "%.1f hPa",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234638127,
+    "lastStateChange": 1792234638127,
+    "unitSymbol": "hPa",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Pressure"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Pressure",
+    "name": "Outdoor_Pressure",
+    "label": "Pressure",
+    "tags": ["Pressure", "Measurement"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Outdoor_Temperature_F",
+    "state": "14.00000000000000000000000000000002 °C",
+    "stateDescription": {
+      "pattern": "%.1f °F",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234765546,
+    "lastStateChange": 1792234765546,
+    "unitSymbol": "°C",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Temperature"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Temperature",
+    "name": "Outdoor_Temperature_F",
+    "label": "Outdoor temperature",
+    "tags": ["Temperature", "Measurement"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Plain_Counter",
+    "state": "42",
+    "stateDescription": {
+      "pattern": "%.0f",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234771922,
+    "lastStateChange": 1792234771922,
+    "editable": false,
+    "type": "Number",
+    "name": "Plain_Counter",
+    "label": "Counter",
+    "tags": [],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Smoke_Kitchen",
+    "state": "OFF",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234764201,
+    "lastStateChange": 1792234764201,
+    "metadata": {
+      "semantics": {
+        "value": "Point_Alarm",
+        "config": {
+          "relatesTo": "Property_Smoke",
+          "hasLocation": "gKitchen"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Switch",
+    "name": "Smoke_Kitchen",
+    "label": "Kitchen smoke",
+    "tags": ["Smoke", "Alarm"],
+    "groupNames": ["gKitchen"]
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Virtual_Switch",
+    "state": "OFF",
+    "lastState": "ON",
+    "lastStateUpdate": 1792234596810,
+    "lastStateChange": 1792234596810,
+    "editable": false,
+    "type": "Switch",
+    "name": "Virtual_Switch",
+    "label": "Virtual switch",
+    "tags": [],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Water_Leak",
+    "state": "OFF",
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234764894,
+    "lastStateChange": 1792234764894,
+    "metadata": {
+      "semantics": {
+        "value": "Point_Alarm",
+        "config": {
+          "relatesTo": "Property_Water"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Switch",
+    "name": "Water_Leak",
+    "label": "Water leak",
+    "tags": ["Alarm", "Water"],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Weather_Text",
+    "state": "Partly cloudy",
+    "stateDescription": {
+      "pattern": "%s",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234643614,
+    "lastStateChange": 1792234643614,
+    "editable": false,
+    "type": "String",
+    "name": "Weather_Text",
+    "label": "Weather",
+    "tags": [],
+    "groupNames": []
+  },
+  {
+    "link": "http://192.0.2.10:8080/rest/items/Wind_Speed",
+    "state": "12.4 km/h",
+    "stateDescription": {
+      "pattern": "%.1f km/h",
+      "readOnly": false,
+      "options": []
+    },
+    "lastState": "NULL",
+    "lastStateUpdate": 1792234767767,
+    "lastStateChange": 1792234767767,
+    "unitSymbol": "km/h",
+    "metadata": {
+      "semantics": {
+        "value": "Point_Measurement",
+        "config": {
+          "relatesTo": "Property_Wind"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Number:Speed",
+    "name": "Wind_Speed",
+    "label": "Wind speed",
+    "tags": ["Wind", "Measurement"],
+    "groupNames": []
+  },
+  {
+    "members": [],
+    "groupType": "Switch",
+    "function": {
+      "name": "OR",
+      "params": ["ON", "OFF"]
+    },
+    "link": "http://192.0.2.10:8080/rest/items/gAllLights",
+    "state": "NULL",
+    "editable": false,
+    "type": "Group",
+    "name": "gAllLights",
+    "label": "All lights",
+    "tags": [],
+    "groupNames": []
+  },
+  {
+    "members": [],
+    "link": "http://192.0.2.10:8080/rest/items/gKitchen",
+    "state": "NULL",
+    "metadata": {
+      "semantics": {
+        "value": "Location_Indoor_Room_Kitchen",
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Group",
+    "name": "gKitchen",
+    "label": "Kitchen",
+    "tags": ["Kitchen"],
+    "groupNames": []
+  },
+  {
+    "members": [],
+    "link": "http://192.0.2.10:8080/rest/items/gLamp",
+    "state": "NULL",
+    "metadata": {
+      "semantics": {
+        "value": "Equipment_LightSource_Lightbulb",
+        "config": {
+          "hasLocation": "gLiving"
+        },
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Group",
+    "name": "gLamp",
+    "label": "Ceiling lamp",
+    "tags": ["Lightbulb"],
+    "groupNames": ["gLiving"]
+  },
+  {
+    "members": [],
+    "link": "http://192.0.2.10:8080/rest/items/gLiving",
+    "state": "NULL",
+    "metadata": {
+      "semantics": {
+        "value": "Location_Indoor_Room_LivingRoom",
+        "editable": false
+      }
+    },
+    "editable": false,
+    "type": "Group",
+    "name": "gLiving",
+    "label": "Living room",
+    "tags": ["LivingRoom"],
+    "groupNames": []
+  }
+]

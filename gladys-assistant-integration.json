@@ -1,177 +1,527 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "openHAB",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Bridge to openHAB: import its items (lights, shutters, sensors…) into Gladys and control them.",
+    "fr": "Pont vers openHAB : importez ses items (lampes, volets, capteurs…) dans Gladys et pilotez-les.",
+    "de": "Brücke zu openHAB: Items (Lampen, Rollläden, Sensoren…) in Gladys importieren und steuern.",
+    "es": "Puente a openHAB: importe sus items (luces, persianas, sensores…) en Gladys y contrólelos."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-openhab:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-openhab/main/cover.png",
+  "categories": ["protocols", "lighting", "climate"],
+  "transports": ["local"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your openHAB items in Gladys",
+        "fr": "Vos items openHAB dans Gladys",
+        "de": "Deine openHAB-Items in Gladys",
+        "es": "Sus items de openHAB en Gladys"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Gladys reads the items of your openHAB server through its REST API and follows their changes live. Create an API token in openHAB (your profile, at the bottom: Create new API token). If your openHAB accepts requests without login, the token can stay empty. The items then show up in the Discovery tab, grouped by equipment of the semantic model: add the ones you want.",
+        "fr": "Gladys lit les items de votre serveur openHAB par son API REST et suit leurs changements en direct. Créez un jeton d'API dans openHAB (votre profil, tout en bas : Create new API token). Si votre openHAB accepte les requêtes sans connexion, le jeton peut rester vide. Les items apparaissent ensuite dans l'onglet Découverte, regroupés par équipement du modèle sémantique : ajoutez ceux que vous voulez.",
+        "de": "Gladys liest die Items deines openHAB-Servers über seine REST-API und verfolgt ihre Änderungen live. Erstelle in openHAB ein API-Token (dein Profil, ganz unten: Create new API token). Nimmt dein openHAB Anfragen ohne Anmeldung an, kann das Token leer bleiben. Die Items erscheinen dann im Reiter Entdecken, nach Equipment des semantischen Modells gruppiert: Füge die gewünschten hinzu.",
+        "es": "Gladys lee los items de su servidor openHAB mediante su API REST y sigue sus cambios en directo. Cree un token de API en openHAB (su perfil, al final: Create new API token). Si su openHAB acepta peticiones sin inicio de sesión, el token puede quedar vacío. Los items aparecen luego en la pestaña Descubrir, agrupados por equipo del modelo semántico: añada los que quiera."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://www.openhab.org/docs/configuration/apitokens.html",
+          "label": {
+            "en": "API tokens",
+            "fr": "Jetons d'API",
+            "de": "API-Token",
+            "es": "Tokens de API"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "url",
+      "type": "string",
+      "label": {
+        "en": "Address of openHAB",
+        "fr": "Adresse d'openHAB",
+        "de": "Adresse von openHAB",
+        "es": "Dirección de openHAB"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "description": {
+        "en": "Its IP address and port, as seen from the Gladys machine. Not a .local name, not localhost.",
+        "fr": "Son adresse IP et son port, vus depuis la machine de Gladys. Pas de nom en .local, pas localhost.",
+        "de": "IP-Adresse und Port, von der Gladys-Maschine aus gesehen. Kein .local-Name, nicht localhost.",
+        "es": "Su dirección IP y puerto, vistos desde la máquina de Gladys. Sin nombre .local, sin localhost."
+      },
+      "placeholder": {
+        "en": "http://192.168.1.30:8080",
+        "fr": "http://192.168.1.30:8080",
+        "de": "http://192.168.1.30:8080",
+        "es": "http://192.168.1.30:8080"
+      },
+      "required": true
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "key": "token",
+      "type": "secret",
+      "label": {
+        "en": "API token",
+        "fr": "Jeton d'API",
+        "de": "API-Token",
+        "es": "Token de API"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
+      "description": {
+        "en": "Empty if your openHAB accepts requests without login.",
+        "fr": "Vide si votre openHAB accepte les requêtes sans connexion.",
+        "de": "Leer, wenn dein openHAB Anfragen ohne Anmeldung annimmt.",
+        "es": "Vacío si su openHAB acepta peticiones sin inicio de sesión."
+      },
+      "required": false
     },
     {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
+      "key": "username",
+      "type": "string",
+      "label": {
+        "en": "User name (instead of a token)",
+        "fr": "Nom d'utilisateur (à la place d'un jeton)",
+        "de": "Benutzername (statt eines Tokens)",
+        "es": "Nombre de usuario (en lugar de un token)"
+      },
+      "description": {
+        "en": "Only if basic authentication is enabled in openHAB (API security settings). A token is preferable.",
+        "fr": "Seulement si l'authentification basique est activée dans openHAB (réglages de sécurité de l'API). Un jeton est préférable.",
+        "de": "Nur wenn die Basic-Authentifizierung in openHAB aktiviert ist (Sicherheitseinstellungen der API). Ein Token ist besser.",
+        "es": "Solo si la autenticación básica está activada en openHAB (ajustes de seguridad de la API). Es preferible un token."
+      },
       "required": false,
-      "default": "celsius",
-      "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
-      ]
+      "default": ""
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "password",
+      "type": "secret",
+      "label": {
+        "en": "Password",
+        "fr": "Mot de passe",
+        "de": "Passwort",
+        "es": "Contraseña"
+      },
+      "required": false
+    },
+    {
+      "key": "groups",
+      "type": "string",
+      "label": {
+        "en": "Only the items of these groups",
+        "fr": "Seulement les items de ces groupes",
+        "de": "Nur die Items dieser Gruppen",
+        "es": "Solo los items de estos grupos"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Group names or labels, separated by commas: an item counts when it is in one of them, at any depth. Empty: every item.",
+        "fr": "Noms ou libellés de groupes, séparés par des virgules : un item compte s'il est dans l'un d'eux, à toute profondeur. Vide : tous les items.",
+        "de": "Gruppennamen oder Bezeichnungen, durch Kommas getrennt: Ein Item zählt, wenn es in einer davon liegt, in jeder Tiefe. Leer: alle Items.",
+        "es": "Nombres o etiquetas de grupos, separados por comas: un item cuenta si está en uno de ellos, a cualquier profundidad. Vacío: todos los items."
+      },
+      "placeholder": {
+        "en": "gGroundFloor, gGarden",
+        "fr": "gGroundFloor, gGarden",
+        "de": "gGroundFloor, gGarden",
+        "es": "gGroundFloor, gGarden"
       },
       "required": false,
-      "default": 300,
-      "min": 60,
+      "default": ""
+    },
+    {
+      "key": "tags",
+      "type": "string",
+      "label": {
+        "en": "Only the items with these tags",
+        "fr": "Seulement les items portant ces tags",
+        "de": "Nur die Items mit diesen Tags",
+        "es": "Solo los items con estas etiquetas"
+      },
+      "description": {
+        "en": "Tags of the item or of its equipment, separated by commas (semantic tags like Lightbulb or Temperature, or your own). Empty: every item.",
+        "fr": "Tags de l'item ou de son équipement, séparés par des virgules (tags sémantiques comme Lightbulb ou Temperature, ou les vôtres). Vide : tous les items.",
+        "de": "Tags des Items oder seines Equipments, durch Kommas getrennt (semantische Tags wie Lightbulb oder Temperature, oder eigene). Leer: alle Items.",
+        "es": "Etiquetas del item o de su equipo, separadas por comas (etiquetas semánticas como Lightbulb o Temperature, o las suyas). Vacío: todos los items."
+      },
+      "placeholder": {
+        "en": "Gladys",
+        "fr": "Gladys",
+        "de": "Gladys",
+        "es": "Gladys"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "exclude_items",
+      "type": "string",
+      "label": {
+        "en": "Items to leave out",
+        "fr": "Items à écarter",
+        "de": "Auszulassende Items",
+        "es": "Items a excluir"
+      },
+      "description": {
+        "en": "Item names, separated by commas; * matches any text. Never imported.",
+        "fr": "Noms d'items, séparés par des virgules ; * remplace n'importe quel texte. Jamais importés.",
+        "de": "Item-Namen, durch Kommas getrennt; * steht für beliebigen Text. Nie importiert.",
+        "es": "Nombres de items, separados por comas; * sustituye cualquier texto. Nunca se importan."
+      },
+      "placeholder": {
+        "en": "*_Signal, Test_*",
+        "fr": "*_Signal, Test_*",
+        "de": "*_Signal, Test_*",
+        "es": "*_Signal, Test_*"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "allow_security_commands",
+      "type": "boolean",
+      "label": {
+        "en": "Allow commands of locks, garage doors and gates",
+        "fr": "Autoriser les commandes des serrures, portes de garage et portails",
+        "de": "Befehle für Schlösser, Garagentore und Tore erlauben",
+        "es": "Permitir comandos de cerraduras, puertas de garaje y portones"
+      },
+      "description": {
+        "en": "Off: locks, garage doors and gates show their state, but Gladys cannot open them, from a device, a scene or a voice assistant.",
+        "fr": "Désactivé : serrures, portes de garage et portails affichent leur état, mais Gladys ne peut pas les ouvrir, depuis un appareil, une scène ou un assistant vocal.",
+        "de": "Aus: Schlösser, Garagentore und Tore zeigen ihren Zustand, aber Gladys kann sie nicht öffnen, über Gerät, Szene oder Sprachassistent.",
+        "es": "Desactivado: cerraduras, puertas de garaje y portones muestran su estado, pero Gladys no puede abrirlos, desde un dispositivo, una escena o un asistente de voz."
+      },
+      "required": false,
+      "default": false
+    },
+    {
+      "key": "sensor_interval",
+      "type": "number",
+      "label": {
+        "en": "Minimum interval between two values of a sensor (s)",
+        "fr": "Intervalle minimum entre deux valeurs d'un capteur (s)",
+        "de": "Mindestabstand zwischen zwei Werten eines Sensors (s)",
+        "es": "Intervalo mínimo entre dos valores de un sensor (s)"
+      },
+      "description": {
+        "en": "A power meter that reports every second is sent to Gladys at this pace. Switches and detectors are never delayed.",
+        "fr": "Un compteur qui publie chaque seconde est transmis à Gladys à ce rythme. Interrupteurs et détecteurs ne sont jamais retardés.",
+        "de": "Ein Zähler, der jede Sekunde meldet, wird in diesem Takt an Gladys gesendet. Schalter und Melder werden nie verzögert.",
+        "es": "Un contador que informa cada segundo se envía a Gladys a este ritmo. Interruptores y detectores nunca se retrasan."
+      },
+      "required": false,
+      "default": 10,
+      "min": 0,
       "max": 3600
+    },
+    {
+      "key": "events",
+      "type": "section",
+      "label": {
+        "en": "Scenes",
+        "fr": "Scènes",
+        "de": "Szenen",
+        "es": "Escenas"
+      },
+      "description": {
+        "en": "Items listed here start the scene trigger \"openHAB item changed\" at each change of state, even when they are not added to Gladys (a String, a DateTime, an alarm mode…).",
+        "fr": "Les items listés ici déclenchent le déclencheur de scène « Item openHAB modifié » à chaque changement d'état, même s'ils ne sont pas ajoutés à Gladys (un String, un DateTime, un mode d'alarme…).",
+        "de": "Hier aufgeführte Items lösen bei jeder Zustandsänderung den Szenen-Auslöser „openHAB-Item geändert“ aus, auch wenn sie nicht zu Gladys hinzugefügt sind (ein String, ein DateTime, ein Alarmmodus…).",
+        "es": "Los items indicados aquí activan el disparador de escena «Item de openHAB modificado» en cada cambio de estado, aunque no estén añadidos a Gladys (un String, un DateTime, un modo de alarma…)."
+      }
+    },
+    {
+      "key": "watched_items",
+      "type": "string",
+      "label": {
+        "en": "Items watched for the scenes",
+        "fr": "Items surveillés pour les scènes",
+        "de": "Für Szenen beobachtete Items",
+        "es": "Items vigilados para las escenas"
+      },
+      "description": {
+        "en": "Item names, separated by commas; * matches any text.",
+        "fr": "Noms d'items, séparés par des virgules ; * remplace n'importe quel texte.",
+        "de": "Item-Namen, durch Kommas getrennt; * steht für beliebigen Text.",
+        "es": "Nombres de items, separados por comas; * sustituye cualquier texto."
+      },
+      "placeholder": {
+        "en": "Alarm_Mode, Doorbell_*",
+        "fr": "Alarm_Mode, Doorbell_*",
+        "de": "Alarm_Mode, Doorbell_*",
+        "es": "Alarm_Mode, Doorbell_*"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the feature names",
+        "fr": "Langue des noms de fonctionnalités",
+        "de": "Sprache der Funktionsnamen",
+        "es": "Idioma de los nombres de funciones"
+      },
+      "required": false,
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
       "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "item_changed",
+      "label": {
+        "en": "openHAB item changed",
+        "fr": "Item openHAB modifié",
+        "de": "openHAB-Item geändert",
+        "es": "Item de openHAB modificado"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A watched item (configuration) changed state in openHAB.",
+        "fr": "Un item surveillé (configuration) a changé d'état dans openHAB.",
+        "de": "Ein beobachtetes Item (Konfiguration) hat in openHAB seinen Zustand geändert.",
+        "es": "Un item vigilado (configuración) cambió de estado en openHAB."
       },
       "fields": [
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "key": "item",
+          "type": "string",
+          "label": {
+            "en": "Item",
+            "fr": "Item",
+            "de": "Item",
+            "es": "Item"
+          },
+          "placeholder": {
+            "en": "Alarm_Mode",
+            "fr": "Alarm_Mode",
+            "de": "Alarm_Mode",
+            "es": "Alarm_Mode"
+          }
         },
         {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
+          "key": "state",
+          "type": "string",
+          "label": {
+            "en": "New state (optional)",
+            "fr": "Nouvel état (facultatif)",
+            "de": "Neuer Zustand (optional)",
+            "es": "Nuevo estado (opcional)"
+          },
+          "placeholder": {
+            "en": "ARMED",
+            "fr": "ARMED",
+            "de": "ARMED",
+            "es": "ARMED"
+          }
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "item",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Item",
+            "fr": "Item",
+            "de": "Item",
+            "es": "Item"
+          }
+        },
+        {
+          "key": "label",
+          "type": "string",
+          "label": {
+            "en": "Label",
+            "fr": "Libellé",
+            "de": "Bezeichnung",
+            "es": "Etiqueta"
+          }
+        },
+        {
+          "key": "state",
+          "type": "string",
+          "label": {
+            "en": "New state",
+            "fr": "Nouvel état",
+            "de": "Neuer Zustand",
+            "es": "Nuevo estado"
+          }
+        },
+        {
+          "key": "old_state",
+          "type": "string",
+          "label": {
+            "en": "Previous state",
+            "fr": "État précédent",
+            "de": "Vorheriger Zustand",
+            "es": "Estado anterior"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "send_command",
+      "label": {
+        "en": "Send a command to an openHAB item",
+        "fr": "Envoyer une commande à un item openHAB",
+        "de": "Befehl an ein openHAB-Item senden",
+        "es": "Enviar un comando a un item de openHAB"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "Sends a command to any item, even one not added to Gladys: ON, OFF, 50, UP, a text…",
+        "fr": "Envoie une commande à n'importe quel item, même non ajouté à Gladys : ON, OFF, 50, UP, un texte…",
+        "de": "Sendet einen Befehl an ein beliebiges Item, auch ein nicht hinzugefügtes: ON, OFF, 50, UP, ein Text…",
+        "es": "Envía un comando a cualquier item, aunque no esté añadido a Gladys: ON, OFF, 50, UP, un texto…"
+      },
+      "timeout_seconds": 30,
       "fields": [
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
+          "key": "item",
+          "type": "string",
+          "label": {
+            "en": "Item",
+            "fr": "Item",
+            "de": "Item",
+            "es": "Item"
+          },
+          "placeholder": {
+            "en": "Kitchen_Light",
+            "fr": "Kitchen_Light",
+            "de": "Kitchen_Light",
+            "es": "Kitchen_Light"
+          },
           "required": true
-        }
-      ],
-      "outputs": [
+        },
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "command",
+          "type": "string",
+          "label": {
+            "en": "Command",
+            "fr": "Commande",
+            "de": "Befehl",
+            "es": "Comando"
+          },
+          "placeholder": {
+            "en": "ON",
+            "fr": "ON",
+            "de": "ON",
+            "es": "ON"
+          }
+        }
+      ]
+    },
+    {
+      "key": "run_rule",
+      "label": {
+        "en": "Run an openHAB rule",
+        "fr": "Lancer une règle openHAB",
+        "de": "openHAB-Regel ausführen",
+        "es": "Ejecutar una regla de openHAB"
+      },
+      "description": {
+        "en": "Runs a rule or a scene of openHAB, by its identifier (UID). Needs an administrator token.",
+        "fr": "Lance une règle ou une scène d'openHAB, par son identifiant (UID). Demande un jeton administrateur.",
+        "de": "Führt eine Regel oder Szene von openHAB über ihre Kennung (UID) aus. Braucht ein Administrator-Token.",
+        "es": "Ejecuta una regla o escena de openHAB, por su identificador (UID). Requiere un token de administrador."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "rule",
+          "type": "string",
+          "label": {
+            "en": "Rule identifier (UID)",
+            "fr": "Identifiant de la règle (UID)",
+            "de": "Kennung der Regel (UID)",
+            "es": "Identificador de la regla (UID)"
+          },
+          "placeholder": {
+            "en": "good_night",
+            "fr": "good_night",
+            "de": "good_night",
+            "es": "good_night"
+          },
+          "required": true
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "status",
+      "label": {
+        "en": "openHAB",
+        "fr": "openHAB",
+        "de": "openHAB",
+        "es": "openHAB"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Connection to openHAB, live updates, devices added and items followed.",
+        "fr": "Connexion à openHAB, mises à jour en direct, appareils ajoutés et items suivis.",
+        "de": "Verbindung zu openHAB, Live-Aktualisierung, hinzugefügte Geräte und verfolgte Items.",
+        "es": "Conexión a openHAB, actualizaciones en directo, dispositivos añadidos e items seguidos."
+      },
+      "icon": "home",
+      "action_timeout_seconds": 30
     }
   ]
 }

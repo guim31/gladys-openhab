@@ -1,8 +1,8 @@
 {
-  "name": "gladys-integration-template-js",
+  "name": "gladys-openhab",
   "version": "1.0.0",
   "private": true,
-  "description": "Official starter template to build an external integration for Gladys Assistant with the JavaScript SDK.",
+  "description": "Gladys Assistant external integration bridging openHAB: import its items into Gladys and control them through the REST API and its event stream.",
   "type": "module",
   "main": "index.js",
   "scripts": {
