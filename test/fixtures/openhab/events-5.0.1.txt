@@ -1,0 +1,27 @@
+event: message
+data: {"topic":"openhab/items/Living_Light_Dimmer/statechanged","payload":"{\"type\":\"Percent\",\"value\":\"40\",\"oldType\":\"UnDef\",\"oldValue\":\"NULL\"}","type":"ItemStateChangedEvent"}
+
+event: message
+data: {"topic":"openhab/items/Living_Light_Color/statechanged","payload":"{\"type\":\"HSB\",\"value\":\"120,100,50\",\"oldType\":\"UnDef\",\"oldValue\":\"NULL\"}","type":"ItemStateChangedEvent"}
+
+event: message
+data: {"topic":"openhab/items/Living_Temperature/statechanged","payload":"{\"type\":\"Quantity\",\"value\":\"21.5 °C\",\"oldType\":\"UnDef\",\"oldValue\":\"NULL\"}","type":"ItemStateChangedEvent"}
+
+event: alive
+data: {"type":"ALIVE","interval":10}
+
+event: message
+data: {"topic":"openhab/items/Front_Door/statechanged","payload":"{\"type\":\"OpenClosed\",\"value\":\"OPEN\",\"oldType\":\"UnDef\",\"oldValue\":\"NULL\"}","type":"ItemStateChangedEvent"}
+
+event: message
+data: {"topic":"openhab/items/Living_Shutter/statechanged","payload":"{\"type\":\"Percent\",\"value\":\"30\",\"oldType\":\"UnDef\",\"oldValue\":\"NULL\"}","type":"ItemStateChangedEvent"}
+
+event: message
+data: {"topic":"openhab/items/Living_Shutter/statechanged","payload":"{\"type\":\"Percent\",\"value\":\"0\",\"oldType\":\"Percent\",\"oldValue\":\"30\",\"lastStateUpdate\":\"2026-10-17T12:56:56.007187398+02:00[Europe/Paris]\",\"lastStateChange\":\"2026-10-17T12:56:56.007187398+02:00[Europe/Paris]\"}","type":"ItemStateChangedEvent"}
+
+event: message
+data: {"topic":"openhab/items/Living_Speaker_Control/statechanged","payload":"{\"type\":\"PlayPause\",\"value\":\"PLAY\",\"oldType\":\"UnDef\",\"oldValue\":\"NULL\"}","type":"ItemStateChangedEvent"}
+
+event: message
+data: {"topic":"openhab/items/Kitchen_Plug_Power/statechanged","payload":"{\"type\":\"Quantity\",\"value\":\"1234.5 W\",\"oldType\":\"UnDef\",\"oldValue\":\"NULL\"}","type":"ItemStateChangedEvent"}
+

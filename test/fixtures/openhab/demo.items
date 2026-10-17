@@ -1,0 +1,41 @@
+Group gLiving "Living room" ["LivingRoom"]
+Group gKitchen "Kitchen" ["Kitchen"]
+Group gLamp "Ceiling lamp" (gLiving) ["Lightbulb"]
+Switch Living_Light_Power "Ceiling lamp power" (gLamp) ["Switch","Light"]
+Dimmer Living_Light_Dimmer "Ceiling lamp brightness" (gLamp) ["Control","Light"]
+Color Living_Light_Color "Ceiling lamp colour" (gLamp) ["Control","Light"]
+Switch Kitchen_Plug "Coffee machine" (gKitchen) ["PowerOutlet"]
+Number:Power Kitchen_Plug_Power "Coffee machine power [%.1f W]" (gKitchen) ["Measurement","Power"]
+Number:Energy Kitchen_Plug_Energy "Coffee machine energy [%.2f kWh]" (gKitchen) ["Measurement","Energy"]
+Rollershutter Living_Shutter "Living shutter" (gLiving) ["Blinds"]
+Number:Temperature Living_Temperature "Living temperature [%.1f °C]" (gLiving) ["Measurement","Temperature"]
+Number:Dimensionless Living_Humidity "Living humidity [%d %%]" (gLiving) ["Measurement","Humidity"]
+Number:Pressure Outdoor_Pressure "Pressure [%.1f hPa]" ["Measurement","Pressure"]
+Number:Illuminance Living_Lux "Light level [%d lx]" (gLiving) ["Measurement","Light"]
+Contact Front_Door "Front door" ["Door"]
+Contact Kitchen_Window "Kitchen window" (gKitchen) ["Window","OpenState"]
+Switch Front_Door_Lock "Front door lock" ["Lock"]
+Player Living_Speaker_Control "Speaker" (gLiving) ["Control","MediaControl"]
+Dimmer Living_Speaker_Volume "Speaker volume" (gLiving) ["Control","SoundVolume"]
+Switch Motion_Hall "Hall motion" ["Alarm","Presence"]
+Number Battery_Hall "Hall motion battery [%d %%]" ["Measurement","Energy"]
+Number:Temperature Heating_Setpoint "Heating setpoint [%.1f °C]" (gLiving) ["Setpoint","Temperature"]
+String Weather_Text "Weather [%s]"
+DateTime Last_Update "Last update"
+Location Home_Location "Home"
+Switch Virtual_Switch "Virtual switch"
+Rollershutter Garage_Door "Garage door" ["GarageDoor"]
+Rollershutter Bedroom_Curtain "Bedroom curtain" ["Drapes"]
+Switch Smoke_Kitchen "Kitchen smoke" (gKitchen) ["Alarm","Smoke"]
+Switch Water_Leak "Water leak" ["Alarm","Water"]
+Number:Temperature Outdoor_Temperature_F "Outdoor temperature [%.1f °F]" ["Measurement","Temperature"]
+Number:ElectricPotential Mains_Voltage "Mains voltage [%.0f V]" ["Measurement","Voltage"]
+Number:ElectricCurrent Mains_Current "Mains current [%.2f A]" ["Measurement","Current"]
+Number:Speed Wind_Speed "Wind speed [%.1f km/h]" ["Measurement","Wind"]
+Number:Dimensionless Living_CO2 "Living CO2 [%d ppm]" (gLiving) ["Measurement","CO2"]
+Number:Volume Gas_Meter "Gas meter [%.2f m³]" ["Measurement","Gas"]
+Number:Dimensionless Hall_Sensor_Battery "Hall sensor battery [%d %%]" ["Measurement","Level"]
+Number:Temperature Bedroom_Setpoint "Bedroom setpoint [%.1f °C]" ["Setpoint","Temperature"] {stateDescription=""[min=5, max=30, step=0.5]}
+Switch Boiler_Running "Boiler running" ["Status","Power"] {stateDescription=""[readOnly=true]}
+Group:Switch:OR(ON,OFF) gAllLights "All lights"
+Number Plain_Counter "Counter"

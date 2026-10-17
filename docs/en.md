@@ -1,61 +1,178 @@
-# Demo Devices Template
+# openHAB bridge
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+This integration connects Gladys to **your openHAB server** and offers its
+items in the Gladys **Discovery** tab: lights, switches and plugs, shutters and
+curtains, temperature setpoints, sensors with their units, contacts, detectors,
+players and locks. Once a device is added, its states follow openHAB **live**,
+and Gladys controls it **through openHAB**, which keeps its bindings (Zigbee,
+Z-Wave, KNX, Modbus, cloud…). Move to Gladys at your own pace, or run both side
+by side. Everything stays on your local network. Unofficial, not affiliated
+with the openHAB Foundation.
 
-## What you get
+> Tested against openHAB 5.0.1 in Docker with virtual items (no binding), not
+> yet on many real installations: feedback is welcome on the GitHub repository.
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+## Requirements
+
+- openHAB 4.x or 5.x, reachable from the Gladys machine (same network, or a
+  VPN).
+- An **API token** of an openHAB user (preferably an administrator: running a
+  rule from a scene needs one). If your openHAB accepts requests without login
+  (its default "implicit user role"), no token is needed.
 
 ## Configuration
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+### Address and token
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+1. In openHAB (Main UI), open your profile (bottom left), then **Create new
+   API token**. Name it "Gladys" and copy the token: openHAB shows it once.
+2. In Gladys, open the integration, **Configuration**:
+   - **Address of openHAB**: like `http://192.168.1.30:8080`, or
+     `https://openhab.example.org` behind a reverse proxy. Not a `.local` name,
+     not `localhost`: the integration runs in its own container.
+   - **API token**: paste it. A **user name and password** work too, only if
+     basic authentication is enabled in openHAB (Settings → API Security).
+3. Click **Test the connection**: the openHAB version, the number of devices
+   offered and the item types not imported show up.
+4. Open the **Discovery** tab and add the devices you want. Their values are
+   sent as soon as they are added.
 
-## Actions
+### Choosing what to import
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+An openHAB installation often has hundreds of items. Gladys offers:
 
-## Scenes
+- only the items of the listed **groups**, if any (group names or labels,
+  separated by commas, like `gGroundFloor, Garden`; an item counts when it is
+  in one of them at any depth);
+- only the items carrying one of the listed **tags**, if any (tags of the item
+  or of its equipment: semantic tags like `Lightbulb`, `Temperature`, or your
+  own, like `Gladys`);
+- never the items listed in **Items to leave out** (`*_Signal`, `*` matches
+  any text).
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+Group items are never devices themselves: they are the locations and
+equipments of the semantic model. Only the devices added in Gladys receive
+states: the others cost nothing.
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+### Locks, garage doors and gates
 
-## Dashboard
+By default, **locks** (items tagged `Lock`, or points of a `Lock` equipment),
+the shutters of a **garage door**, **gate** or **door**, and the switches of a
+**garage door** or **gate** (an impulse opener) are **read-only** in Gladys: you see whether they are locked, open or closed, but
+neither a device, nor a scene, nor a voice assistant linked to Gladys can open
+them. Tick **Allow commands of locks, garage doors and gates** to control them
+(then click "Update" on these devices in the Discovery tab). The scene action
+that sends a command refuses them too, and refuses a group that holds one of
+them, while this box is not ticked.
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+### Options
+
+- **Minimum interval between two values of a sensor**: 10 seconds by default.
+  A meter that reports every second is sent to Gladys at this pace. Switches,
+  lights, shutters and detectors are never delayed.
+- **Language of the feature names**: the words added to the names of
+  secondary features ("Shutter – Position"). French by default.
+- **Items watched for the scenes**: see the scene trigger below.
+
+## What you get
+
+### Devices
+
+One Gladys device per **equipment** of the openHAB semantic model, with the
+features of its points (a lamp with its switch, dimmer and colour); an item
+outside any equipment is a device of its own. The name is the openHAB label,
+with its location ("Ceiling lamp (Living room)").
+
+| openHAB item                                     | In Gladys                                                     |
+| ------------------------------------------------ | ------------------------------------------------------------- |
+| `Switch`                                         | a switch, or a light (tag `Light`, light equipment)           |
+| `Switch` tagged `Alarm`/`Status` + Smoke, Water… | smoke, leak, CO, motion, tamper or vibration detector         |
+| `Switch` tagged `Lock`                           | locked or not (read-only unless allowed)                      |
+| `Dimmer`                                         | light brightness (with on/off when alone)                     |
+| `Dimmer` tagged `SoundVolume`                    | the volume of a player                                        |
+| `Color`                                          | light colour and brightness (with on/off when alone)          |
+| `Rollershutter`                                  | a shutter (or a curtain): open, close, stop, position         |
+| `Rollershutter` garage door, gate, door          | open or closed, position (read-only unless allowed)           |
+| `Contact`                                        | an opening sensor                                             |
+| `Player`                                         | playback state, play, pause, next, previous                   |
+| `Number:Temperature` tagged `Setpoint`           | a thermostat setpoint, within the item's min and max          |
+| `Number:Temperature`, `Pressure`, `Illuminance`… | temperature, pressure, light, power, energy, voltage, current |
+|                                                  | volume (gas, water), wind speed, noise, rain intensity        |
+| `Number` in % tagged Humidity, or named battery  | humidity, battery level                                       |
+| `Number` in ppm tagged `CO2`                     | a CO2 sensor                                                  |
+
+`String`, `DateTime`, `Location`, `Call`, `Image` and group items are not
+imported (the connection test lists them); a `String` can still start a scene
+(trigger below) or receive a command (scene action). A `Number` without unit
+nor meaning is not imported either: give it a dimension (`Number:Power`) or a
+semantic tag.
+
+A shutter position follows Gladys: 100 % is open (openHAB says 0 %). A
+`Number:Dimensionless` without `unit` metadata keeps its state in "one" in
+openHAB (48 % is `0.48`): the bridge shows it in the unit of its pattern, like
+openHAB does.
+
+### Dashboard widget
+
+**openHAB**: the connection, how the states arrive (event stream or polling),
+the openHAB version, the devices offered and added, the items followed, and a
+**Reload** button that reads the item list again.
+
+### Scene triggers
+
+**openHAB item changed**: an item listed in **Items watched for the scenes**
+changed state, even when it is not added to Gladys (a String, an alarm mode, a
+doorbell). Filters: the item, and the new state (optional). Variables: item,
+label, new state, previous state.
+
+### Scene actions
+
+- **Send a command to an openHAB item**: any item, any command (`ON`, `OFF`,
+  `50`, `UP`, `PLAY`, a text). Useful for the items Gladys has no feature for,
+  or to start an openHAB rule through a virtual switch.
+- **Run an openHAB rule**: by its identifier (UID, shown in Settings →
+  Rules); openHAB scenes are rules too. Needs the token of an administrator.
+
+## Scene examples
+
+- When the openHAB item `Alarm_Mode` becomes `ARMED` (watched item), turn off
+  every Gladys light and send a message.
+- At sunset, send `DOWN` to the openHAB group `gShutters` (scene action).
+- When the Gladys presence leaves home, run the openHAB rule `away_mode`.
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **"openHAB refused the access"**: the token is wrong or was deleted; create a
+  new one. With a user name, basic authentication must be enabled in openHAB.
+- **"openHAB is unreachable"**: check the address from the Gladys machine
+  (`curl http://<address>:8080/rest/`). A new attempt is made after 5 seconds,
+  then up to every minute.
+- **The widget says "Polling"**: the event stream (`/rest/events`) does not get
+  through, often because of a reverse proxy buffering it. The states still
+  arrive every 30 seconds; the stream is tried again regularly.
+- **An item is missing**: run the connection test, it lists the types not
+  imported. Check the groups, tags and exclusions of the configuration.
+- **A value shows 100 times too big or too small**: the item is a
+  `Number:Dimensionless` whose pattern says `%` while openHAB stores it in
+  "one" or the other way round; give it `unit` metadata in openHAB.
+- **Logs**: set `LOG_LEVEL=debug` to see every state and event.
+
+## Limits
+
+- Developed against openHAB 5.0.1 with virtual items: no binding nor real
+  hardware was used. Feedback welcome.
+- Group items are not devices: a group of lights can still be commanded from a
+  scene action.
+- A thermostat mode, a colour temperature or a fan speed have no openHAB item
+  type of their own: they arrive as Numbers or Dimmers, and are imported as
+  such when they have a unit, or not at all.
+- Renaming an item in openHAB creates another item: the Gladys device must be
+  added again. Moving an item to another equipment changes its Gladys device
+  too.
+- The names of features are fixed when the device is added in Gladys.
+
+## Privacy
+
+The bridge talks only to your openHAB server, on your network. The token (or
+the password) is stored by Gladys in its configuration and never written to the
+logs. Nothing is sent to the internet.

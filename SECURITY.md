@@ -28,8 +28,13 @@ Gladys before reporting a problem.
 
 ## Scope
 
-In scope: the code of this repository and the Docker image it publishes.
+In scope: the code of this repository and the Docker image it publishes. The
+integration stores nothing in `/data`: its configuration (the openHAB address,
+the API token or the user name and password) is kept by Gladys and given to the
+container at start-up. It only talks to the openHAB server configured, on the
+local network, over HTTP or HTTPS; the token and the password are never written
+to the logs, and an address holding credentials is refused.
 
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and openHAB and the devices it talks to.

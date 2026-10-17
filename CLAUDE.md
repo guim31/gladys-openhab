@@ -16,8 +16,8 @@ its only runtime dependency. It started from the official JavaScript template.
 ```bash
 npm install
 npm test                                  # node --test, the built-in runner
-node --test test/devices.test.js          # one file
-node --test --test-name-pattern "plug"    # tests whose name matches
+node --test test/bridge.test.js           # one file
+node --test --test-name-pattern "lock"    # tests whose name matches
 npm run lint                              # ESLint
 npm run format:check                      # Prettier, as the CI runs it
 npm run format                            # Prettier, fix in place
@@ -32,15 +32,20 @@ pushing.
 
 ```
 index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
-src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/app.js                        every handler of the manifest, on the bridge
+src/bridge.js                     the openHAB connection: inventory, event stream, polling, commands
+src/openhab/client.js             REST API (fetch) and the Server-Sent Events parser
+src/inventory.js                  items -> Gladys devices (equipments), routing tables (pure)
+src/mapping.js                    one item -> its features: read, write, units (pure)
+src/publisher.js                  states sent to Gladys within 250 per minute, 12 h heartbeat
+src/scenes.js                     scene actions (send_command, run_rule) and the security guard
+src/widgets.js                    dashboard widget `status`
+src/texts.js                      every text of the container, in four languages
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
-test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
+test/                             node --test, against the SDK's fake Gladys and a fake openHAB
+test/fixtures/openhab/            items and events of a real openHAB 5.0.1 (demo.items)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +75,10 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** is in four languages (English, French, German with
+  "du", Spanish with "usted"): action messages, manifest texts, feature names,
+  widget, and `docs/{en,fr,de,es}.md` with the same sections.
+  `test/i18n.test.js` checks it.
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -233,3 +240,32 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## openHAB (propre à cette intégration)
+
+Vérifié contre `openhab/openhab:5.0.1` en Docker (items virtuels de `test/fixtures/openhab/demo.items`, jeton créé
+par la console Karaf : `printf 'openhab:users add …\nopenhab:users addApiToken …' | /openhab/runtime/bin/client -p
+habopen -b`).
+
+- **Authentification** : jeton d'API en `Bearer` (ou en utilisateur basic, mot de passe vide) ; utilisateur et mot de
+  passe en basic **seulement si** `org.openhab.restauth:allowBasicAuth=true` (sinon 401). Par défaut openHAB laisse
+  passer les requêtes **anonymes** (« implicit user role ») en lecture **et en commande**, même après la création
+  d'un administrateur ; un **mauvais** jeton est pourtant refusé (401). `GET /rest/rules` exige un jeton.
+- `GET /rest/items?recursive=false&metadata=semantics` : `metadata.semantics.value` (`Equipment_Door_GarageDoor`,
+  `Point_Measurement`…), `config.relatesTo` (`Property_Temperature`), `config.isPointOf` (l'équipement, un item
+  Group) et `config.hasLocation`. Un item peut être lui-même un équipement (un `Rollershutter` tagué `Blinds`).
+- **Unités** : l'état d'un `Number:<dimension>` est dans l'unité de l'item (`unitSymbol`), **pas** dans celle du
+  motif : un item au motif `°F` sur un système SI est stocké en °C (`14.000…02 °C`). Un `Number:Dimensionless` sans
+  métadonnée `unit` est stocké en « one » : 48 % devient `0.48`, 612 ppm `0.000612` (openHAB l'affiche dans l'unité
+  du motif ; le pont aussi). Le mètre cube arrive en `㎥` (U+33A5) : normaliser en NFKC.
+- Un `Rollershutter` vaut **0 ouvert, 100 fermé** (UP → 0) ; la position Gladys est l'inverse.
+- Erreurs : item inconnu → 404 avec `{ error: { message } }` ; commande invalide → 400 ; `rules/<uid>/runnow`
+  inconnu → 404.
+- **SSE** `/rest/events?topics=…` : `event: message` + `data: {topic, payload (JSON en chaîne), type}`, avec
+  `ItemStateChangedEvent` (`value`, `oldValue`), et `event: alive` toutes les 10 s (chien de garde à 35 s).
+  `ItemAddedEvent`/`ItemRemovedEvent`/`ItemUpdatedEvent` → relire la liste. Le timeout de `fetch` ne doit couvrir
+  que la réponse, pas le flux.
+- Choix de conception : un appareil Gladys par **équipement** (sinon par item), identifiants tirés des noms d'items
+  (openHAB ne renomme jamais un item) ; groupes, `String`, `DateTime`, `Location` non importés (déclencheur et
+  action de scène pour eux) ; serrures, portes de garage et portails en lecture seule sauf option, y compris par
+  une commande de scène à un groupe qui en contient.
