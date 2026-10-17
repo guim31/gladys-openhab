@@ -250,23 +250,17 @@ const DETECTORS = [
   [/^vibration$/, C.VIBRATION_SENSOR, T.VIBRATION_SENSOR.BINARY],
 ];
 
-/** Covers that open a way into the house: their commands are a security choice. */
-const SENSITIVE_COVER = /^(garagedoor|gate|frontdoor|door)$/;
+/** Words of the things that open the house: locks, gates, garage and front doors. */
+const OPENS_THE_HOUSE = /^(lock|smartlock|garagedoor|gate|frontdoor|door)$/;
 
-/** Gates and garage doors, whatever drives them (a Rollershutter, an impulse Switch). */
-const OPENS_THE_HOUSE = /^(garagedoor|gate)$/;
-
-/** True for the items whose commands are a security choice: locks, garage doors, gates. */
+/**
+ * True for the items whose commands are a security choice: anything that is,
+ * or belongs to, a lock, a gate, a garage or front door (a Rollershutter, an
+ * impulse Switch, a String or a Number opener alike).
+ */
 export function isSecurityItem(item, equipment) {
-  const all = new Set([...words(item), ...(equipment ? words(equipment) : [])]);
-  if (all.has('lock') || all.has('smartlock')) {
-    return true;
-  }
-  const type = baseType(item);
-  if (type === 'Rollershutter') {
-    return [...all].some((w) => SENSITIVE_COVER.test(w));
-  }
-  return type === 'Switch' && [...all].some((w) => OPENS_THE_HOUSE.test(w));
+  const all = [...words(item), ...(equipment ? words(equipment) : [])];
+  return all.some((w) => OPENS_THE_HOUSE.test(w));
 }
 
 const binary = (category, type, extra = {}) => ({ category, type, min: 0, max: 1, ...extra });
@@ -289,8 +283,7 @@ function switchItem(item, ctx) {
         main: true,
         spec: binary(C.LOCK, T.LOCK.BINARY),
         read: onOff,
-        // Read-only unless the user enabled the commands of locks explicitly.
-        write: ctx.allowSecurity ? (v) => (Number(v) > 0 ? 'ON' : 'OFF') : undefined,
+        write: (v) => (Number(v) > 0 ? 'ON' : 'OFF'),
       },
     ];
   }
@@ -300,8 +293,6 @@ function switchItem(item, ctx) {
       return [{ role: 'state', main: true, spec: binary(detector[1], detector[2]), read: onOff }];
     }
   }
-  // A garage door or gate opener driven by an impulse Switch: same rule as the locks.
-  const sensitive = [...all].some((x) => OPENS_THE_HOUSE.test(x));
   const light = w.has('light') || ctx.equipmentWords.has('lightsource') || w.has('lightbulb');
   return [
     {
@@ -309,7 +300,7 @@ function switchItem(item, ctx) {
       main: true,
       spec: light ? binary(C.LIGHT, T.LIGHT.BINARY) : binary(C.SWITCH, T.SWITCH.BINARY),
       read: onOff,
-      write: sensitive && !ctx.allowSecurity ? undefined : (v) => (Number(v) > 0 ? 'ON' : 'OFF'),
+      write: (v) => (Number(v) > 0 ? 'ON' : 'OFF'),
     },
   ];
 }
@@ -388,7 +379,7 @@ function colorItem(item, ctx) {
 
 function rollershutterItem(item, ctx) {
   const all = new Set([...ctx.words, ...ctx.equipmentWords]);
-  const sensitive = [...all].some((w) => SENSITIVE_COVER.test(w));
+  const sensitive = ctx.sensitive;
   const controllable = !sensitive || ctx.allowSecurity;
   const curtain = all.has('drapes') || all.has('curtain');
   const category = curtain ? C.CURTAIN : C.SHUTTER;
@@ -593,6 +584,7 @@ export function mapItem(item, { allowSecurity = false, equipment, standalone = t
   }
   const ctx = {
     allowSecurity,
+    sensitive: isSecurityItem(item, equipment),
     standalone,
     words: words(item),
     equipmentWords: equipment ? words(equipment) : new Set(),
@@ -601,7 +593,8 @@ export function mapItem(item, { allowSecurity = false, equipment, standalone = t
   if (!Array.isArray(result)) {
     return result;
   }
-  const readOnly = item.stateDescription?.readOnly === true;
+  // Read-only too: the commands of a lock, a gate or a door, unless the user allowed them.
+  const readOnly = item.stateDescription?.readOnly === true || (ctx.sensitive && !allowSecurity);
   return result.map((f) => {
     const writable = typeof f.write === 'function' && !readOnly;
     return {

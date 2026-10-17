@@ -63,8 +63,7 @@ Die anderen kosten nichts.
 ### Schlösser, Garagentore und Tore
 
 Standardmäßig sind **Schlösser** (Items mit dem Tag `Lock`, oder Punkte eines
-`Lock`-Equipments), die Rollläden eines **Garagentors**, **Tors** oder einer
-**Tür**, und die Schalter eines **Garagentors** oder **Tors** (Impulsöffner) in
+`Lock`-Equipments), und jedes Item eines **Garagentors**, **Tors** oder einer **Tür** (Rollladen, Impulsschalter, Türöffner), so getaggt oder Punkt eines solchen Equipments, in
 Gladys **schreibgeschützt**: Du siehst, ob sie verriegelt, offen oder
 geschlossen sind, aber weder ein Gerät, noch eine Szene, noch ein mit Gladys
 verbundener Sprachassistent kann sie öffnen. Aktiviere **Befehle für Schlösser,

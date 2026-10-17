@@ -84,6 +84,14 @@ export function buildInventory(items, options) {
     return true;
   };
 
+  /** Equipments holding a Switch point. */
+  const switchPoints = new Set(
+    list
+      .filter((i) => baseType(i) === 'Switch')
+      .map((i) => equipmentOf(i)?.name)
+      .filter(Boolean),
+  );
+
   /** device external id -> { device, names } */
   const devices = new Map();
   /** item name -> [{ featureId, read, throttle }] */
@@ -111,7 +119,8 @@ export function buildInventory(items, options) {
     const features = mapItem(item, {
       allowSecurity: options.allowSecurity,
       equipment,
-      standalone: !equipment,
+      // A Dimmer or Color gets its own on/off unless a Switch of its equipment is that on/off.
+      standalone: !equipment || !switchPoints.has(equipment.name),
     });
     if (!Array.isArray(features)) {
       ignored.set(features.skipped, (ignored.get(features.skipped) ?? 0) + 1);

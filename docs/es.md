@@ -62,9 +62,7 @@ los demás no cuestan nada.
 ### Cerraduras, puertas de garaje y portones
 
 Por defecto, las **cerraduras** (items con la etiqueta `Lock`, o puntos de un
-equipo `Lock`), las persianas de una **puerta de garaje**, un **portón** o una
-**puerta**, y los interruptores de una **puerta de garaje** o un **portón**
-(abridor por impulso) son de **solo lectura** en Gladys: usted ve si están
+equipo `Lock`), y todo item de una **puerta de garaje**, un **portón** o una **puerta** (persiana, interruptor por impulso, cerradero, abridor), con esa etiqueta o punto de tal equipo, son de **solo lectura** en Gladys: usted ve si están
 cerrados con llave, abiertos o cerrados, pero ni un dispositivo, ni una escena,
 ni un asistente de voz vinculado a Gladys puede abrirlos. Marque **Permitir
 comandos de cerraduras, puertas de garaje y portones** para controlarlos (luego

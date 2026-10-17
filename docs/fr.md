@@ -61,9 +61,7 @@ dans Gladys reçoivent des états : les autres ne coûtent rien.
 ### Serrures, portes de garage et portails
 
 Par défaut, les **serrures** (items tagués `Lock`, ou points d'un équipement
-`Lock`), les volets d'une **porte de garage**, d'un **portail** ou d'une
-**porte**, et les interrupteurs d'une **porte de garage** ou d'un **portail**
-(ouvre-porte à impulsion) sont en **lecture seule** dans Gladys : vous voyez
+`Lock`), et tout item d'une **porte de garage**, d'un **portail** ou d'une **porte** (volet, interrupteur à impulsion, gâche, ouvre-porte), tagué ainsi ou point d'un tel équipement, sont en **lecture seule** dans Gladys : vous voyez
 s'ils sont verrouillés, ouverts ou fermés, mais ni un appareil, ni une scène, ni
 un assistant vocal relié à Gladys ne peut les ouvrir. Cochez **Autoriser les
 commandes des serrures, portes de garage et portails** pour les piloter (puis

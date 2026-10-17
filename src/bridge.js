@@ -30,7 +30,8 @@ import { ERRORS, STATUS, localizedError, testMessage } from './texts.js';
 export const BRIDGE_TIMINGS = {
   reconnectMin: 5000,
   reconnectMax: 60_000,
-  authRetry: 5 * 60_000,
+  // openHAB 5 answers 401 for a while when it starts: a refusal is tried again within a minute.
+  authRetry: 60_000,
   inventoryDebounce: 2000,
   // Without the event stream, the items are read this often.
   pollInterval: 30_000,
@@ -119,6 +120,8 @@ export class Bridge {
     this.streamTimer = undefined;
     this.stream = undefined;
     this.live = false;
+    this.streamHealthy = false;
+    this.streamSeq = 0;
     this.streamFailing = false;
     this.lastEventAt = 0;
     this.lastRefreshAt = 0;
@@ -149,7 +152,14 @@ export class Bridge {
     this.disconnect();
     this.generation += 1;
     this.delay = this.timings.reconnectMin;
+    this.streamDelay = this.timings.reconnectMin;
     this.structure = undefined;
+    // Nothing of the previous server survives a new configuration.
+    this.items = new Map();
+    this.changedAt.clear();
+    this.transports.clear();
+    this.inventory = buildInventory([], { externalIds: this.gladys.externalIds.bind(this.gladys) });
+    this.publisher.clear();
     this.publisher.start();
     if (this.config.invalidUrl || !this.config.url) {
       this.status = this.config.invalidUrl ? 'invalid_url' : 'not_configured';
@@ -180,6 +190,7 @@ export class Bridge {
   }
 
   closeStream() {
+    this.streamSeq += 1;
     const stream = this.stream;
     this.stream = undefined;
     this.live = false;
@@ -283,30 +294,27 @@ export class Bridge {
     if (generation !== this.generation || this.status !== 'online' || !this.client) {
       return;
     }
+    this.streamSeq += 1;
+    const seq = this.streamSeq;
     let stream;
     try {
-      stream = await this.client.openEvents((event) => this.onStreamEvent(event));
+      stream = await this.client.openEvents((event) => this.onStreamEvent(event, stream));
     } catch (err) {
-      if (generation === this.generation) {
+      if (generation === this.generation && seq === this.streamSeq) {
         this.onStreamDown(generation, err.message);
       }
       return;
     }
-    if (generation !== this.generation || this.status !== 'online') {
+    // A newer attempt (after a loss and a reconnection) owns the stream now.
+    if (generation !== this.generation || this.status !== 'online' || seq !== this.streamSeq) {
       stream.close();
       return;
     }
+    this.stream?.close();
     this.stream = stream;
     this.live = true;
+    this.streamHealthy = false;
     this.lastEventAt = this.now();
-    this.streamDelay = this.timings.reconnectMin;
-    if (this.streamFailing) {
-      this.streamFailing = false;
-      this.logger.info('openHAB event stream works again');
-      this.requestWidgetRefresh();
-      // Changes may have been missed while it was down.
-      this.refresh(generation).catch(() => {});
-    }
     stream.done.then(() => {
       if (this.stream === stream) {
         this.stream = undefined;
@@ -333,8 +341,24 @@ export class Bridge {
     this.streamDelay = Math.min(this.streamDelay * 2, this.timings.streamRetryMax);
   }
 
-  onStreamEvent({ event, data }) {
+  onStreamEvent({ event, data }, stream) {
+    if (stream && stream !== this.stream) {
+      return;
+    }
     this.lastEventAt = this.now();
+    if (!this.streamHealthy) {
+      // Healthy at its first event only: a proxy that accepts the stream and closes it,
+      // or buffers it, must not reset the delay nor log a recovery every few seconds.
+      this.streamHealthy = true;
+      this.streamDelay = this.timings.reconnectMin;
+      if (this.streamFailing) {
+        this.streamFailing = false;
+        this.logger.info('openHAB event stream works again');
+        this.requestWidgetRefresh();
+        // Changes may have been missed while it was down.
+        this.refresh(this.generation).catch(() => {});
+      }
+    }
     if (event !== 'message') {
       return;
     }
@@ -433,6 +457,7 @@ export class Bridge {
 
   /** New item list: states updated, devices offered again when the structure changed. */
   async applyItems(items, { force = false } = {}) {
+    const previous = this.items;
     this.items = new Map(items.filter((i) => typeof i?.name === 'string').map((i) => [i.name, i]));
     this.lastRefreshAt = this.now();
     const structure = structureOf([...this.items.values()]);
@@ -445,6 +470,18 @@ export class Bridge {
       await this.publishDevices();
       if (!force) {
         await this.publishTransports();
+      }
+    }
+    // Without the stream, the watched items start their scenes from here.
+    for (const [name, item] of this.items) {
+      const before = previous.get(name)?.state;
+      if (before !== undefined && before !== item.state && this.watched(name)) {
+        this.sceneEvent(TRIGGERS.ITEM_CHANGED, {
+          item: name,
+          label: short(item.label || name),
+          state: short(item.state),
+          old_state: short(before),
+        });
       }
     }
     this.pushAll();

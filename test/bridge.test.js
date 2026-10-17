@@ -237,3 +237,26 @@ test('not configured, then an invalid address: said in the status', async (t) =>
   assert.equal(world.bridge.status, 'invalid_url');
   assert.match(world.fake.connectionStatus.message.en, /not valid/);
 });
+
+test('a Color alone in its equipment gets an on/off; beside a Switch it does not', async (t) => {
+  const oh = createOpenhab();
+  oh.items = oh.items.filter(
+    (i) => !['Living_Light_Power', 'Living_Light_Dimmer'].includes(i.name),
+  );
+  const world = await createWorld({ oh });
+  t.after(() => world.app.stop());
+  assert.equal(featureOf(world, 'Living_Light_Color', 'power').category, 'light');
+});
+
+test('while polling, a watched item still starts its scenes', async (t) => {
+  const oh = createOpenhab({ sse: false });
+  const world = await createWorld({
+    oh,
+    config: baseConfig({ watched_items: 'Weather_Text' }),
+    timings: { ...FAST_TIMINGS, pollInterval: 30 },
+  });
+  t.after(() => world.app.stop());
+  oh.items.find((i) => i.name === 'Weather_Text').state = 'Snow';
+  await until(() => world.fake.sceneEvents.length > 0, { what: 'the polled scene event' });
+  assert.equal(world.fake.sceneEvents[0].data.state, 'Snow');
+});

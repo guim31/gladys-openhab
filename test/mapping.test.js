@@ -156,3 +156,16 @@ test('groups, strings, dates and locations are not imported', () => {
   }
   assert.ok(!Array.isArray(mapItem(item('Plain_Counter'))), 'a Number without unit nor meaning');
 });
+
+test('any opener of the house is guarded: a String in a garage door, a Switch strike in a door', () => {
+  const garage = { metadata: { semantics: { value: 'Equipment_Door_GarageDoor' } }, tags: [] };
+  const opener = { ...item('Weather_Text'), type: 'Dimmer', tags: [] };
+  assert.equal(
+    mapItem(opener, { equipment: garage }).every((f) => !f.write),
+    true,
+    'read-only in a garage door equipment',
+  );
+  const strike = { ...item('Virtual_Switch'), tags: ['FrontDoor'] };
+  assert.equal(mapItem(strike)[0].write, undefined);
+  assert.equal(mapItem(strike, { allowSecurity: true })[0].write(1), 'ON');
+});

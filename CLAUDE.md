@@ -258,6 +258,10 @@ habopen -b`).
   motif : un item au motif `°F` sur un système SI est stocké en °C (`14.000…02 °C`). Un `Number:Dimensionless` sans
   métadonnée `unit` est stocké en « one » : 48 % devient `0.48`, 612 ppm `0.000612` (openHAB l'affiche dans l'unité
   du motif ; le pont aussi). Le mètre cube arrive en `㎥` (U+33A5) : normaliser en NFKC.
+- **Au redémarrage, openHAB 5 répond 401 un moment** avec un jeton valide (vu en Docker) : un refus n'est donc
+  retenté qu'au bout d'une minute au plus, pas cinq.
+- Le flux SSE n'est déclaré sain qu'à son **premier événement** (un `alive` arrive en 10 s) : un proxy qui accepte
+  le flux puis le coupe ou le met en tampon ne doit ni remettre le délai à zéro ni écrire un retour à chaque cycle.
 - Un `Rollershutter` vaut **0 ouvert, 100 fermé** (UP → 0) ; la position Gladys est l'inverse.
 - Erreurs : item inconnu → 404 avec `{ error: { message } }` ; commande invalide → 400 ; `rules/<uid>/runnow`
   inconnu → 404.

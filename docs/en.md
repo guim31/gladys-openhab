@@ -57,8 +57,7 @@ states: the others cost nothing.
 ### Locks, garage doors and gates
 
 By default, **locks** (items tagged `Lock`, or points of a `Lock` equipment),
-the shutters of a **garage door**, **gate** or **door**, and the switches of a
-**garage door** or **gate** (an impulse opener) are **read-only** in Gladys: you see whether they are locked, open or closed, but
+and every item of a **garage door**, a **gate** or a **door** (shutter, impulse switch, strike, opener), tagged so or point of such an equipment, are **read-only** in Gladys: you see whether they are locked, open or closed, but
 neither a device, nor a scene, nor a voice assistant linked to Gladys can open
 them. Tick **Allow commands of locks, garage doors and gates** to control them
 (then click "Update" on these devices in the Discovery tab). The scene action
