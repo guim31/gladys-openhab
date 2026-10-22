@@ -1,6 +1,6 @@
 {
   "name": "gladys-openhab",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Gladys Assistant external integration bridging openHAB: import its items into Gladys and control them through the REST API and its event stream.",
   "type": "module",
