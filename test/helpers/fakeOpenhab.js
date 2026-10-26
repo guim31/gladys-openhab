@@ -62,6 +62,8 @@ export function createOpenhab({ items = fixture(), auth = 'token', sse = true, l
     auth,
     sse,
     down: false,
+    /** GET /rest/links fails: an HTTP status (500...) or 'timeout' */
+    linksFail: null,
     version: '5.0.1',
     rules: new Set(['good_night']),
     commands: [],
@@ -143,6 +145,12 @@ export function createOpenhab({ items = fixture(), auth = 'token', sse = true, l
       // openHAB serves the links to administrators: the token, not anonymous requests.
       if (init.headers?.Authorization !== `Bearer ${TOKEN}`) {
         return new Response('', { status: 401 });
+      }
+      if (oh.linksFail === 'timeout') {
+        throw new DOMException('The operation was aborted due to timeout', 'TimeoutError');
+      }
+      if (oh.linksFail) {
+        return new Response('', { status: oh.linksFail });
       }
       return json(structuredClone(oh.links));
     }

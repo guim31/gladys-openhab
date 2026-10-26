@@ -147,7 +147,9 @@ Las carátulas vienen del item `Image` (openHAB ya las descargó), reducidas si 
 navegador nunca contacta con openHAB ni con el reproductor. Sin búsqueda, navegación ni cola:
 openHAB no tiene un estándar para ellas. Sin canal `stop`, **Detener** pone en pausa (un item
 `Player` no sabe detenerse). Lo que el binding conserva al detenerse (el título, en Squeezebox)
-sigue en pantalla.
+sigue en pantalla. Un canal `stop` vinculado después de añadir el reproductor a Gladys no añade la
+opción **Detenido**: Gladys no propone actualización para un simple cambio de opciones (solo aparece
+en un reproductor añadido después del vínculo).
 
 **Reproductores añadidos con la versión 1.0**: sus nuevas funciones llegan por la pestaña
 **Descubrir**: haga clic en **Actualizar** en el dispositivo. Los identificadores no cambian

@@ -190,6 +190,10 @@ export class OpenhabClient {
         map.set(link.itemName, [...(map.get(link.itemName) ?? []), link.channelUID]);
       }
     }
+    // A stable order: the structure of the devices does not change with it.
+    for (const channels of map.values()) {
+      channels.sort();
+    }
     return map;
   }
 

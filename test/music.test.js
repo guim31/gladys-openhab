@@ -364,3 +364,93 @@ test('links refused (a user token): one line, the bridge works as 1.0', async (t
   assert.equal(oh.requests.filter((r) => r === 'GET /rest/links').length, 2);
   assert.ok(TOKEN);
 });
+
+test('links in error (500, timeout): the links read before stay, the devices stay reachable', async (t) => {
+  const { lines } = captureLogs(t, 'info');
+  const world = await createWorld({
+    oh: createOpenhab({ items: items(), links: links() }),
+    logger: createLogger({ name: 'openhab' }),
+  });
+  t.after(() => world.app.stop());
+  assert.equal(world.bridge.inventory.music.size, 2);
+  const failures = () => lines.filter((l) => /links not read/.test(l));
+  for (const fail of [500, 'timeout']) {
+    const before = world.bridge.links;
+    world.oh.linksFail = fail;
+    await world.bridge.refresh();
+    await world.bridge.refresh();
+    assert.equal(world.bridge.status, 'online');
+    assert.equal(world.bridge.links, before);
+    assert.equal(world.bridge.inventory.music.size, 2);
+    world.oh.linksFail = null;
+    await world.bridge.refresh();
+  }
+  // One line at the first failure of each run, none per attempt.
+  assert.equal(failures().length, 2, lines.join('\n'));
+  assert.match(failures()[1], /timeout/);
+  assert.equal(lines.filter((l) => /item links to this token/.test(l)).length, 0);
+
+  // At the connection: online, without the links until they are read.
+  const oh = createOpenhab({ items: items(), links: links() });
+  oh.linksFail = 500;
+  const late = await createWorld({ oh });
+  t.after(() => late.app.stop());
+  assert.equal(late.bridge.status, 'online');
+  assert.equal(late.bridge.links, null);
+  oh.linksFail = null;
+  await late.bridge.refresh();
+  assert.equal(late.bridge.inventory.music.size, 2);
+});
+
+test('a live stream without duration (UNDEF) publishes 0, not the previous one', async (t) => {
+  const world = await musicWorld();
+  t.after(() => world.app.stop());
+  const salon = await addDevice(world, salonOf(world));
+  const last = (suffix) => world.fake.lastState(feature(salon, suffix).external_id);
+  await until(() => last('Salon_Duration-duration') === 240, { what: 'the duration' });
+  world.oh.change('Salon_Duration', 'UNDEF');
+  await until(() => last('Salon_Duration-duration') === 0, { what: 'the duration 0' });
+  assert.equal(last('Salon_Control-playback'), 1);
+});
+
+test('the features not yet in Gladys are published after "Update" only', async (t) => {
+  const world = await musicWorld();
+  t.after(() => world.app.stop());
+  const full = salonOf(world);
+  const titleId = feature(full, 'Salon_Title-title').external_id;
+  const old = structuredClone(full);
+  old.features = old.features.filter((f) => f.external_id !== titleId);
+  await addDevice(world, old);
+  const artistId = feature(full, 'Salon_Artist-artist').external_id;
+  await until(() => world.fake.lastState(artistId) === 'Test Artist 4', { what: 'the artist' });
+  assert.equal(world.fake.lastState(titleId), undefined);
+  await world.fake.deviceUpdated(structuredClone(full));
+  await until(() => world.fake.lastState(titleId) === 'Long Tone 4', { what: 'the title' });
+});
+
+test('the options of a repeat item are part of the structure; links in a stable order', async (t) => {
+  const world = await musicWorld();
+  t.after(() => world.app.stop());
+  const repeat = () => {
+    const cuisine = world.bridge.inventory.devices.find((d) => d.external_id.endsWith(':Cuisine'));
+    return music(cuisine, 'repeat')[0].supported_options.map((o) => o.value);
+  };
+  assert.deepEqual(repeat(), [0, 1, 2]);
+  const item = world.oh.items.find((i) => i.name === 'Cuisine_Repeat');
+  item.stateDescription.options = item.stateDescription.options.filter((o) => o.value !== 'ONE');
+  await world.bridge.refresh();
+  assert.deepEqual(repeat(), [0, 1]);
+
+  // The order of /rest/links does not matter.
+  const order = world.bridge.structure;
+  world.oh.links.reverse();
+  world.oh.links.push({ itemName: 'Salon_Title', channelUID: 'a:b:c:other' });
+  world.oh.links.unshift({ itemName: 'Salon_Title', channelUID: 'z:b:c:other' });
+  await world.bridge.refresh();
+  const channels = world.bridge.links.get('Salon_Title');
+  assert.deepEqual(channels, [...channels].sort());
+  world.oh.links.reverse();
+  await world.bridge.refresh();
+  assert.deepEqual(world.bridge.links.get('Salon_Title'), channels);
+  assert.notEqual(world.bridge.structure, order);
+});

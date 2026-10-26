@@ -28,7 +28,7 @@ import { ArtworkError, prepareArtwork } from './artwork-resize.js';
 import { matcher, normalizeConfig } from './config.js';
 import { buildInventory } from './inventory.js';
 import { WriteError } from './mapping.js';
-import { playbackState, text } from './music.js';
+import { MUSIC_CHANNELS, playbackState, splitChannel, text } from './music.js';
 import { OhAuthError, OhHttpError, OpenhabClient } from './openhab/client.js';
 import { StatePublisher } from './publisher.js';
 import { ERRORS, STATUS, localizedError, testMessage } from './texts.js';
@@ -73,6 +73,11 @@ const short = (value, max = 255) => {
   return text.length > max ? text.slice(0, max) : text;
 };
 
+/** Channel ids of the shuffle and repeat roles: their options are the writable modes. */
+const MODE_CHANNELS = new Set([...MUSIC_CHANNELS.shuffle, ...MUSIC_CHANNELS.repeat]);
+const modeItem = (channels) =>
+  (channels ?? []).some((uid) => MODE_CHANNELS.has(splitChannel(uid)?.id));
+
 /** What the inventory is built from: a change here offers the devices again. */
 const structureOf = (items, links) =>
   JSON.stringify(
@@ -89,6 +94,8 @@ const structureOf = (items, links) =>
       i.stateDescription?.readOnly,
       i.stateDescription?.minimum,
       i.stateDescription?.maximum,
+      // The options of a shuffle or repeat item give its modes (src/music.js).
+      modeItem(links?.get(i.name)) ? (i.stateDescription?.options ?? null) : null,
       i.metadata?.semantics,
     ]),
   );
@@ -150,6 +157,7 @@ export class Bridge {
     /** item name -> channel UIDs; null when openHAB does not show them */
     this.links = null;
     this.linksRefused = false;
+    this.linksFailing = false;
     /** device external id -> { timer, since } of its next now-playing batch */
     this.musicTimers = new Map();
     /** artwork key -> { mime, base64 } */
@@ -186,6 +194,7 @@ export class Bridge {
     this.inventory = buildInventory([], { externalIds: this.gladys.externalIds.bind(this.gladys) });
     this.links = null;
     this.linksRefused = false;
+    this.linksFailing = false;
     this.artworks.clear();
     this.artworkOfItem.clear();
     this.publisher.clear();
@@ -258,7 +267,7 @@ export class Bridge {
     try {
       const info = await client.getInfo();
       items = await client.getItems();
-      links = await client.getLinks();
+      links = await this.readLinks(client);
       this.version = info.version || undefined;
     } catch (err) {
       if (generation === this.generation) {
@@ -484,7 +493,7 @@ export class Bridge {
     let links;
     try {
       items = await this.client.getItems();
-      links = await this.client.getLinks();
+      links = await this.readLinks(this.client);
     } catch (err) {
       if (generation === this.generation && this.status === 'online') {
         await this.onFailure(generation, err);
@@ -505,8 +514,34 @@ export class Bridge {
     await this.applyItems(items);
   }
 
+  /**
+   * GET /rest/links apart from the items: a failure (500, a timeout, a proxy)
+   * keeps the links read before and the devices reachable; one line at the
+   * first failure. Undefined when not read.
+   */
+  async readLinks(client) {
+    try {
+      const links = await client.getLinks();
+      if (this.linksFailing) {
+        this.logger.info('openHAB item links read again');
+      }
+      this.linksFailing = false;
+      return links;
+    } catch (err) {
+      if (!this.linksFailing) {
+        this.logger.warn(`openHAB item links not read, the previous ones are kept: ${err.message}`);
+      }
+      this.linksFailing = true;
+      return undefined;
+    }
+  }
+
   /** The links read with the items: one line when openHAB refuses them and has players. */
   setLinks(links, items) {
+    if (links === undefined) {
+      // Not read this time: the previous ones stay.
+      return;
+    }
     this.links = links;
     const refused = links === null && items.some((i) => String(i?.type) === 'Player');
     if (refused && !this.linksRefused) {
@@ -709,6 +744,9 @@ export class Bridge {
         value = null;
       } else if (!loaded && f.key === 'duration') {
         value = 0;
+      } else if (f.key === 'duration') {
+        // A live stream has no duration (NULL/UNDEF): 0, not the previous track's.
+        value = f.read(item.state) ?? 0;
       } else {
         value = f.read(item.state);
       }
@@ -729,10 +767,25 @@ export class Bridge {
       return;
     }
     const snapshot = this.nowPlaying(deviceId);
-    if (!snapshot || Object.keys(snapshot.values).length === 0) {
+    if (!snapshot) {
       return;
     }
-    const { values, featureExternalIds } = snapshot;
+    // Only the features Gladys has: the others wait for "Update" (the SDK puts
+    // the updated device in gladys.devices and forgets the snapshot before
+    // onDeviceUpdated, which publishes everything again).
+    const created = this.createdFeatures();
+    const values = {};
+    const featureExternalIds = {};
+    for (const [key, value] of Object.entries(snapshot.values)) {
+      const type = MUSIC_TYPE[key] ?? key;
+      if (created.has(snapshot.featureExternalIds[type])) {
+        values[key] = value;
+        featureExternalIds[type] = snapshot.featureExternalIds[type];
+      }
+    }
+    if (Object.keys(values).length === 0) {
+      return;
+    }
     Promise.resolve()
       .then(() => this.gladys.publishNowPlaying(deviceId, values, { featureExternalIds }))
       .catch((err) => this.logger.debug(`Now playing of ${deviceId} not sent: ${err.message}`));

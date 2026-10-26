@@ -278,6 +278,13 @@ habopen -b`).
   duration/position/shuffle/repeat/mute ; `stop` sert à lire l'arrêt et à écrire 2. Tout passe par
   `publishNowPlaying` (rafale d'événements regroupée : 500 ms, 2 s au plus). Un item déjà importé comme
   appareil à part (un `Switch` sans tag) le reste : une fonctionnalité ne change jamais d'appareil.
+  `/rest/links` est lu à part : une erreur (500, délai) garde les liens précédents, sans rendre les appareils
+  injoignables. Les fonctionnalités pas encore créées dans Gladys ne sont pas publiées (le SDK met l'appareil
+  à jour dans `gladys.devices` et oublie l'instantané avant `onDeviceUpdated`, qui republie tout).
+- **Limites connues** : un canal `stop` lié **après** l'ajout de l'appareil n'ajoute pas l'option « Arrêté »
+  (Gladys ne propose pas « Mettre à jour » pour un changement d'options seul) ; documenté, pas corrigé.
+  **À vérifier sur matériel** : un binding qui laisserait `stop` sur ON pendant une pause publierait
+  « Arrêté » au lieu de « Pause ».
 - **`GET /rest/links` est réservé aux administrateurs** (401 en anonyme, `@RolesAllowed(ADMIN)`), comme
   `/rest/things` ; un lien vers un canal inexistant est refusé (400) : pour un banc sans matériel, créer le
   thing (il reste hors ligne, ses canaux existent). Sans liens, les lecteurs restent en 1.0.

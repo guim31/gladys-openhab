@@ -145,7 +145,9 @@ Les pochettes viennent de l'item `Image` (openHAB les a déjà téléchargées),
 dépassent 300 Ko : votre navigateur ne contacte jamais openHAB ni le lecteur. Pas de recherche, de
 navigation ni de file d'attente : openHAB n'en a pas de standard. Sans canal `stop`, **Arrêter** met
 en pause (un item `Player` ne sait pas s'arrêter). Ce que le binding garde à l'arrêt (le titre, chez
-Squeezebox) reste affiché.
+Squeezebox) reste affiché. Un canal `stop` lié après l'ajout du lecteur dans Gladys n'ajoute pas
+l'option **Arrêté** : Gladys ne propose pas de mise à jour pour un simple changement d'options (elle
+n'apparaît que sur un lecteur ajouté après le lien).
 
 **Lecteurs ajoutés avec la version 1.0** : leurs nouvelles fonctionnalités arrivent par l'onglet
 **Découverte** : cliquez sur **Mettre à jour** sur l'appareil. Les identifiants ne changent pas

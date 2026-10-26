@@ -138,7 +138,9 @@ with a controllable playback state.
 The artwork comes from the `Image` item (openHAB already downloaded it), reduced when it is over
 300 KB: your browser never contacts openHAB nor the player. No search, browsing or queue: openHAB
 has no standard for them. Without a `stop` channel, **Stop** pauses (a `Player` item cannot stop).
-What the binding keeps when stopped (the title, for Squeezebox) stays on screen.
+What the binding keeps when stopped (the title, for Squeezebox) stays on screen. A `stop` channel
+linked after the player was added to Gladys does not add the **Stopped** option: Gladys offers no
+update for a change of options alone (it only appears on a player added after the link).
 
 **Players added with version 1.0**: their new features arrive through the **Discover** tab: click
 **Update** on the device. The ids do not change (play, pause, next, previous, volume; a mute already

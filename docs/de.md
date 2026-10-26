@@ -150,7 +150,10 @@ Das Cover kommt aus dem `Image`-Item (openHAB hat es schon heruntergeladen) und 
 wenn es größer als 300 KB ist: Dein Browser kontaktiert nie openHAB oder den Player. Keine Suche,
 kein Durchsuchen, keine Warteschlange: openHAB hat dafür keinen Standard. Ohne `stop`-Kanal
 pausiert **Stopp** (ein `Player`-Item kann nicht stoppen). Was das Binding beim Stopp behält (den
-Titel bei Squeezebox), bleibt angezeigt.
+Titel bei Squeezebox), bleibt angezeigt. Ein `stop`-Kanal, der nach dem Hinzufügen des Players zu
+Gladys verknüpft wird, fügt die Option **Gestoppt** nicht hinzu: Gladys bietet für eine reine
+Änderung der Optionen kein Update an (sie erscheint nur bei einem nach der Verknüpfung
+hinzugefügten Player).
 
 **Mit Version 1.0 hinzugefügte Player**: Die neuen Funktionen dieser Player kommen über den Reiter
 **Entdecken**: Klicke beim Gerät auf **Aktualisieren**. Die IDs ändern sich nicht (Wiedergabe,
