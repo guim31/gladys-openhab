@@ -1,0 +1,764 @@
+{
+  "items": [
+    {
+      "state": "UNDEF",
+      "stateDescription": {
+        "pattern": "%s",
+        "readOnly": true,
+        "options": []
+      },
+      "lastState": "NULL",
+      "lastStateUpdate": 1792992089030,
+      "lastStateChange": 1792992089030,
+      "editable": true,
+      "type": "String",
+      "name": "Cuisine_Title",
+      "label": "Titre",
+      "category": "",
+      "tags": [],
+      "groupNames": ["Cuisine"]
+    },
+    {
+      "state": "UNDEF",
+      "stateDescription": {
+        "pattern": "%s",
+        "readOnly": true,
+        "options": []
+      },
+      "lastState": "NULL",
+      "lastStateUpdate": 1792992089044,
+      "lastStateChange": 1792992089044,
+      "editable": true,
+      "type": "String",
+      "name": "Cuisine_Album",
+      "label": "Album",
+      "category": "",
+      "tags": [],
+      "groupNames": ["Cuisine"]
+    },
+    {
+      "members": [],
+      "state": "NULL",
+      "metadata": {
+        "semantics": {
+          "value": "Equipment_AudioVisual_MediaPlayer",
+          "config": {
+            "hasPoint": "Salon_TrackArtist"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Group",
+      "name": "Salon",
+      "label": "Salon",
+      "category": "",
+      "tags": ["MediaPlayer"],
+      "groupNames": []
+    },
+    {
+      "state": "Long Tone 4",
+      "stateDescription": {
+        "pattern": "%s",
+        "readOnly": true,
+        "options": []
+      },
+      "lastState": "Long Tone 5",
+      "lastStateUpdate": 1792992494825,
+      "lastStateChange": 1792992494825,
+      "editable": true,
+      "type": "String",
+      "name": "Salon_Title",
+      "label": "Titre",
+      "category": "",
+      "tags": [],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "7 s",
+      "stateDescription": {
+        "pattern": "%.0f %unit%",
+        "readOnly": false,
+        "options": []
+      },
+      "lastState": "6 s",
+      "lastStateUpdate": 1792992535857,
+      "lastStateChange": 1792992535857,
+      "unitSymbol": "s",
+      "metadata": {
+        "semantics": {
+          "value": "Point_Control",
+          "config": {
+            "relatesTo": "Property_Duration",
+            "isPointOf": "Salon"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Number:Time",
+      "name": "Salon_Position",
+      "label": "Position",
+      "category": "",
+      "tags": ["Control", "Duration"],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "UNDEF",
+      "lastState": "NULL",
+      "lastStateUpdate": 1792992089050,
+      "lastStateChange": 1792992089050,
+      "metadata": {
+        "semantics": {
+          "value": "Point_Control_Switch",
+          "config": {
+            "isPointOf": "Cuisine"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Switch",
+      "name": "Cuisine_Shuffle",
+      "label": "Aléatoire",
+      "category": "",
+      "tags": ["Switch"],
+      "groupNames": ["Cuisine"]
+    },
+    {
+      "state": "OFF",
+      "lastState": "ON",
+      "lastStateUpdate": 1792992526568,
+      "lastStateChange": 1792992526568,
+      "metadata": {
+        "semantics": {
+          "value": "Point_Control_Switch",
+          "config": {
+            "isPointOf": "Salon"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Switch",
+      "name": "Salon_Stop",
+      "label": "Stop",
+      "category": "",
+      "tags": ["Switch"],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "0",
+      "stateDescription": {
+        "pattern": "%.0f",
+        "readOnly": false,
+        "options": [
+          {
+            "value": "0",
+            "label": "No Shuffle"
+          },
+          {
+            "value": "1",
+            "label": "Shuffle Songs"
+          },
+          {
+            "value": "2",
+            "label": "Shuffle Albums"
+          }
+        ]
+      },
+      "commandDescription": {
+        "commandOptions": [
+          {
+            "command": "0",
+            "label": "No Shuffle"
+          },
+          {
+            "command": "1",
+            "label": "Shuffle Songs"
+          },
+          {
+            "command": "2",
+            "label": "Shuffle Albums"
+          }
+        ]
+      },
+      "lastState": "1",
+      "lastStateUpdate": 1792992489221,
+      "lastStateChange": 1792992488906,
+      "editable": true,
+      "type": "Number",
+      "name": "Salon_Shuffle",
+      "label": "Aléatoire",
+      "category": "",
+      "tags": [],
+      "groupNames": ["Salon"]
+    },
+    {
+      "members": [],
+      "state": "NULL",
+      "metadata": {
+        "semantics": {
+          "value": "Equipment_AudioVisual_Speaker",
+          "config": {
+            "hasPoint": "Cuisine_Control"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Group",
+      "name": "Cuisine",
+      "label": "Cuisine",
+      "category": "",
+      "tags": ["Speaker"],
+      "groupNames": []
+    },
+    {
+      "state": "Gladys Test Album",
+      "stateDescription": {
+        "pattern": "%s",
+        "readOnly": true,
+        "options": []
+      },
+      "lastState": "",
+      "lastStateUpdate": 1792992526570,
+      "lastStateChange": 1792992526570,
+      "metadata": {
+        "semantics": {
+          "value": "Point_Status",
+          "config": {
+            "relatesTo": "Property_Info",
+            "isPointOf": "Salon"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "String",
+      "name": "Salon_Album",
+      "label": "Album",
+      "category": "",
+      "tags": ["Status", "Info"],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "Test Artist 4",
+      "stateDescription": {
+        "pattern": "%s",
+        "readOnly": true,
+        "options": []
+      },
+      "lastState": "",
+      "lastStateUpdate": 1792992526570,
+      "lastStateChange": 1792992526570,
+      "metadata": {
+        "semantics": {
+          "value": "Point_Status",
+          "config": {
+            "relatesTo": "Property_Info",
+            "isPointOf": "Salon"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "String",
+      "name": "Salon_Artist",
+      "label": "Artiste",
+      "category": "",
+      "tags": ["Status", "Info"],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "240 s",
+      "stateDescription": {
+        "pattern": "%.0f %unit%",
+        "readOnly": true,
+        "options": []
+      },
+      "lastState": "0 s",
+      "lastStateUpdate": 1792992528944,
+      "lastStateChange": 1792992528944,
+      "unitSymbol": "s",
+      "metadata": {
+        "semantics": {
+          "value": "Point_Measurement",
+          "config": {
+            "relatesTo": "Property_Duration",
+            "isPointOf": "Salon"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Number:Time",
+      "name": "Salon_Duration",
+      "label": "Durée",
+      "category": "",
+      "tags": ["Measurement", "Duration"],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "UNDEF",
+      "stateDescription": {
+        "pattern": "%s",
+        "readOnly": false,
+        "options": [
+          {
+            "value": "OFF",
+            "label": "Off"
+          },
+          {
+            "value": "ALL",
+            "label": "All"
+          },
+          {
+            "value": "ONE",
+            "label": "One"
+          }
+        ]
+      },
+      "commandDescription": {
+        "commandOptions": [
+          {
+            "command": "OFF",
+            "label": "Off"
+          },
+          {
+            "command": "ALL",
+            "label": "All"
+          },
+          {
+            "command": "ONE",
+            "label": "One"
+          }
+        ]
+      },
+      "lastState": "NULL",
+      "lastStateUpdate": 1792992089056,
+      "lastStateChange": 1792992089056,
+      "editable": true,
+      "type": "String",
+      "name": "Cuisine_Repeat",
+      "label": "Répétition",
+      "category": "",
+      "tags": [],
+      "groupNames": ["Cuisine"]
+    },
+    {
+      "state": "UNDEF",
+      "lastState": "NULL",
+      "lastStateUpdate": 1792992089064,
+      "lastStateChange": 1792992089064,
+      "editable": true,
+      "type": "Switch",
+      "name": "Cuisine_Mute",
+      "label": "Sourdine",
+      "category": "",
+      "tags": [],
+      "groupNames": ["Cuisine"]
+    },
+    {
+      "state": "UNDEF",
+      "lastState": "NULL",
+      "lastStateUpdate": 1792992089024,
+      "lastStateChange": 1792992089024,
+      "metadata": {
+        "semantics": {
+          "value": "Point_Control",
+          "config": {
+            "relatesTo": "Property_MediaControl",
+            "isPointOf": "Cuisine"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Player",
+      "name": "Cuisine_Control",
+      "label": "Lecteur cuisine",
+      "category": "",
+      "tags": ["Control", "MediaControl"],
+      "groupNames": ["Cuisine"]
+    },
+    {
+      "state": "NULL",
+      "metadata": {
+        "semantics": {
+          "value": "Point_Control",
+          "config": {
+            "relatesTo": "Property_MediaControl"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Player",
+      "name": "Bureau_Player",
+      "label": "Lecteur bureau",
+      "category": "",
+      "tags": ["Control", "MediaControl"],
+      "groupNames": []
+    },
+    {
+      "state": "0",
+      "stateDescription": {
+        "minimum": 0,
+        "maximum": 100,
+        "step": 1,
+        "pattern": "%d %%",
+        "readOnly": false,
+        "options": []
+      },
+      "lastState": "50",
+      "lastStateUpdate": 1792992490597,
+      "lastStateChange": 1792992490597,
+      "metadata": {
+        "semantics": {
+          "value": "Point_Control",
+          "config": {
+            "relatesTo": "Property_SoundVolume",
+            "isPointOf": "Salon"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Dimmer",
+      "name": "Salon_Volume",
+      "label": "Volume",
+      "category": "",
+      "tags": ["Control", "SoundVolume"],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "0",
+      "stateDescription": {
+        "pattern": "%s",
+        "readOnly": true,
+        "options": []
+      },
+      "lastState": "",
+      "lastStateUpdate": 1792992526570,
+      "lastStateChange": 1792992526570,
+      "metadata": {
+        "semantics": {
+          "value": "Point_Status",
+          "config": {
+            "relatesTo": "Property_Info",
+            "isPointOf": "Salon"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "String",
+      "name": "Salon_Year",
+      "label": "Année",
+      "category": "",
+      "tags": ["Status", "Info"],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "0",
+      "stateDescription": {
+        "pattern": "%.0f",
+        "readOnly": false,
+        "options": [
+          {
+            "value": "0",
+            "label": "No Repeat"
+          },
+          {
+            "value": "1",
+            "label": "Repeat Song"
+          },
+          {
+            "value": "2",
+            "label": "Repeat Playlist"
+          }
+        ]
+      },
+      "commandDescription": {
+        "commandOptions": [
+          {
+            "command": "0",
+            "label": "No Repeat"
+          },
+          {
+            "command": "1",
+            "label": "Repeat Song"
+          },
+          {
+            "command": "2",
+            "label": "Repeat Playlist"
+          }
+        ]
+      },
+      "lastState": "2",
+      "lastStateUpdate": 1792992490647,
+      "lastStateChange": 1792992489904,
+      "editable": true,
+      "type": "Number",
+      "name": "Salon_Repeat",
+      "label": "Répétition",
+      "category": "",
+      "tags": [],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAAQABAAD//gARTGF2YzU4LjEzNC4xMDAA/9sAQwAIBAQEBAQFBQUFBQUGBgYGBgYGBgYGBgYGBwcHCAgIBwcHBgYHBwgICAgJCQkICAgICQkKCgoMDAsLDg4OEREU/8QATQABAQAAAAAAAAAAAAAAAAAAAAUBAQEBAAAAAAAAAAAAAAAAAAAGBxABAAAAAAAAAAAAAAAAAAAAABEBAAAAAAAAAAAAAAAAAAAAAP/AABEIAlgCWAMBIgACEQADEQD/2gAMAwEAAhEDEQA/AIgDS0aAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//Z",
+      "stateDescription": {
+        "readOnly": true,
+        "options": []
+      },
+      "lastState": "data:image/png;base64,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",
+      "lastStateUpdate": 1792992526569,
+      "lastStateChange": 1792992526569,
+      "editable": true,
+      "type": "Image",
+      "name": "Salon_Cover",
+      "label": "Pochette",
+      "category": "",
+      "tags": [],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "UNDEF",
+      "stateDescription": {
+        "pattern": "%s",
+        "readOnly": true,
+        "options": []
+      },
+      "lastState": "NULL",
+      "lastStateUpdate": 1792992089036,
+      "lastStateChange": 1792992089036,
+      "editable": true,
+      "type": "String",
+      "name": "Cuisine_Artist",
+      "label": "Artiste",
+      "category": "",
+      "tags": [],
+      "groupNames": ["Cuisine"]
+    },
+    {
+      "state": "OFF",
+      "lastState": "ON",
+      "lastStateUpdate": 1792992490239,
+      "lastStateChange": 1792992490239,
+      "metadata": {
+        "semantics": {
+          "value": "Point_Control_Switch",
+          "config": {
+            "isPointOf": "Salon"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Switch",
+      "name": "Salon_Mute",
+      "label": "Sourdine",
+      "category": "",
+      "tags": ["Switch"],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "PLAY",
+      "lastState": "PAUSE",
+      "lastStateUpdate": 1792992526567,
+      "lastStateChange": 1792992526567,
+      "metadata": {
+        "semantics": {
+          "value": "Point_Control",
+          "config": {
+            "relatesTo": "Property_MediaControl",
+            "isPointOf": "Salon"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "Player",
+      "name": "Salon_Control",
+      "label": "Lecteur",
+      "category": "",
+      "tags": ["Control", "MediaControl"],
+      "groupNames": ["Salon"]
+    },
+    {
+      "state": "",
+      "stateDescription": {
+        "pattern": "%s",
+        "readOnly": true,
+        "options": []
+      },
+      "lastState": "NULL",
+      "lastStateUpdate": 1792992088893,
+      "lastStateChange": 1792992088893,
+      "metadata": {
+        "semantics": {
+          "value": "Point_Status",
+          "config": {
+            "relatesTo": "Property_Info",
+            "isPointOf": "Salon"
+          },
+          "editable": false
+        }
+      },
+      "editable": true,
+      "type": "String",
+      "name": "Salon_TrackArtist",
+      "label": "Artiste du morceau",
+      "category": "",
+      "tags": ["Status", "Info"],
+      "groupNames": ["Salon"]
+    }
+  ],
+  "links": [
+    {
+      "editable": true,
+      "channelUID": "sonos:One:RINCON_000000000001:control",
+      "configuration": {},
+      "itemName": "Cuisine_Control"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:currentPlayingTime",
+      "configuration": {},
+      "itemName": "Salon_Position"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:coverartdata",
+      "configuration": {},
+      "itemName": "Salon_Cover"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:trackArtist",
+      "configuration": {},
+      "itemName": "Salon_TrackArtist"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:control",
+      "configuration": {},
+      "itemName": "Salon_Control"
+    },
+    {
+      "editable": true,
+      "channelUID": "sonos:One:RINCON_000000000001:currenttitle",
+      "configuration": {},
+      "itemName": "Cuisine_Title"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:mute",
+      "configuration": {},
+      "itemName": "Salon_Mute"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:stop",
+      "configuration": {},
+      "itemName": "Salon_Stop"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:title",
+      "configuration": {},
+      "itemName": "Salon_Title"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:duration",
+      "configuration": {},
+      "itemName": "Salon_Duration"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:album",
+      "configuration": {},
+      "itemName": "Salon_Album"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:volume",
+      "configuration": {},
+      "itemName": "Salon_Volume"
+    },
+    {
+      "editable": true,
+      "channelUID": "sonos:One:RINCON_000000000001:mute",
+      "configuration": {},
+      "itemName": "Cuisine_Mute"
+    },
+    {
+      "editable": true,
+      "channelUID": "sonos:One:RINCON_000000000001:repeat",
+      "configuration": {},
+      "itemName": "Cuisine_Repeat"
+    },
+    {
+      "editable": true,
+      "channelUID": "sonos:One:RINCON_000000000001:shuffle",
+      "configuration": {},
+      "itemName": "Cuisine_Shuffle"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:year",
+      "configuration": {},
+      "itemName": "Salon_Year"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:artist",
+      "configuration": {},
+      "itemName": "Salon_Artist"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:currentPlaylistShuffle",
+      "configuration": {},
+      "itemName": "Salon_Shuffle"
+    },
+    {
+      "editable": true,
+      "channelUID": "sonos:One:RINCON_000000000001:currentartist",
+      "configuration": {},
+      "itemName": "Cuisine_Artist"
+    },
+    {
+      "editable": true,
+      "channelUID": "sonos:One:RINCON_000000000001:currentalbum",
+      "configuration": {},
+      "itemName": "Cuisine_Album"
+    },
+    {
+      "editable": true,
+      "channelUID": "squeezebox:squeezeboxplayer:lms:020000000001:currentPlaylistRepeat",
+      "configuration": {},
+      "itemName": "Salon_Repeat"
+    }
+  ],
+  "events": [
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Position/statechanged\",\"payload\":\"{\\\"type\\\":\\\"Quantity\\\",\\\"value\\\":\\\"8 s\\\",\\\"oldType\\\":\\\"Quantity\\\",\\\"oldValue\\\":\\\"7 s\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:55.857018759+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:55.857018759+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Position/statechanged\",\"payload\":\"{\\\"type\\\":\\\"Quantity\\\",\\\"value\\\":\\\"9 s\\\",\\\"oldType\\\":\\\"Quantity\\\",\\\"oldValue\\\":\\\"8 s\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:56.857310207+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:56.857310207+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Control/statechanged\",\"payload\":\"{\\\"type\\\":\\\"PlayPause\\\",\\\"value\\\":\\\"PAUSE\\\",\\\"oldType\\\":\\\"PlayPause\\\",\\\"oldValue\\\":\\\"PLAY\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:46.567087772+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:46.567087772+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Stop/statechanged\",\"payload\":\"{\\\"type\\\":\\\"OnOff\\\",\\\"value\\\":\\\"ON\\\",\\\"oldType\\\":\\\"OnOff\\\",\\\"oldValue\\\":\\\"OFF\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:46.568607267+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:46.568607267+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Duration/statechanged\",\"payload\":\"{\\\"type\\\":\\\"Quantity\\\",\\\"value\\\":\\\"0 s\\\",\\\"oldType\\\":\\\"Quantity\\\",\\\"oldValue\\\":\\\"240 s\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:48.944698921+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:48.944698921+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Control/statechanged\",\"payload\":\"{\\\"type\\\":\\\"PlayPause\\\",\\\"value\\\":\\\"PLAY\\\",\\\"oldType\\\":\\\"PlayPause\\\",\\\"oldValue\\\":\\\"PAUSE\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:58.297175128+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:58.297175128+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Stop/statechanged\",\"payload\":\"{\\\"type\\\":\\\"OnOff\\\",\\\"value\\\":\\\"OFF\\\",\\\"oldType\\\":\\\"OnOff\\\",\\\"oldValue\\\":\\\"ON\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:58.297454865+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:58.297454865+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Position/statechanged\",\"payload\":\"{\\\"type\\\":\\\"Quantity\\\",\\\"value\\\":\\\"10 s\\\",\\\"oldType\\\":\\\"Quantity\\\",\\\"oldValue\\\":\\\"9 s\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:57.858594235+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:57.858594235+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Position/statechanged\",\"payload\":\"{\\\"type\\\":\\\"Quantity\\\",\\\"value\\\":\\\"9 s\\\",\\\"oldType\\\":\\\"Quantity\\\",\\\"oldValue\\\":\\\"10 s\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:58.859366399+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:58.859366399+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Duration/statechanged\",\"payload\":\"{\\\"type\\\":\\\"Quantity\\\",\\\"value\\\":\\\"240 s\\\",\\\"oldType\\\":\\\"Quantity\\\",\\\"oldValue\\\":\\\"0 s\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:58.765693196+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:58.765693196+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Title/statechanged\",\"payload\":\"{\\\"type\\\":\\\"String\\\",\\\"value\\\":\\\"Long Tone 5\\\",\\\"oldType\\\":\\\"String\\\",\\\"oldValue\\\":\\\"Long Tone 4\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:14.825757615+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:14.825757615+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Artist/statechanged\",\"payload\":\"{\\\"type\\\":\\\"String\\\",\\\"value\\\":\\\"Test Artist 5\\\",\\\"oldType\\\":\\\"String\\\",\\\"oldValue\\\":\\\"Test Artist 4\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:46.570228573+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:46.570228573+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Duration/statechanged\",\"payload\":\"{\\\"type\\\":\\\"Quantity\\\",\\\"value\\\":\\\"0 s\\\",\\\"oldType\\\":\\\"Quantity\\\",\\\"oldValue\\\":\\\"240 s\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:59.067972818+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:59.067972818+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Position/statechanged\",\"payload\":\"{\\\"type\\\":\\\"Quantity\\\",\\\"value\\\":\\\"0 s\\\",\\\"oldType\\\":\\\"Quantity\\\",\\\"oldValue\\\":\\\"9 s\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:59.067672612+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:59.067672612+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}",
+    "event: message\ndata: {\"topic\":\"openhab/items/Salon_Duration/statechanged\",\"payload\":\"{\\\"type\\\":\\\"Quantity\\\",\\\"value\\\":\\\"240 s\\\",\\\"oldType\\\":\\\"Quantity\\\",\\\"oldValue\\\":\\\"0 s\\\",\\\"lastStateUpdate\\\":\\\"2026-10-26T06:28:59.766506241+01:00[Europe/Paris]\\\",\\\"lastStateChange\\\":\\\"2026-10-26T06:28:59.766506241+01:00[Europe/Paris]\\\"}\",\"type\":\"ItemStateChangedEvent\"}"
+  ]
+}

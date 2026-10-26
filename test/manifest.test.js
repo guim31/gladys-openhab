@@ -36,8 +36,10 @@ test('the manifest version is the package version, and the image is tagged with 
   assert.ok(manifest.docker_image.endsWith(`:${manifest.version}`));
 });
 
-test('scene triggers, scene actions and widgets require Gladys >= 5.1.0, no more', () => {
-  assert.equal(manifest.gladys_version, '>=5.1.0');
+test('the music players of Gladys 5.3 require Gladys >= 5.3.0, no more', () => {
+  assert.equal(manifest.gladys_version, '>=5.3.0');
+  // Now playing and artwork only: openHAB has no standard catalog, queue or search.
+  assert.deepEqual(manifest.music, {});
 });
 
 test('config_schema: the defaults and options of the code', () => {

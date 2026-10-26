@@ -72,6 +72,17 @@ export const ROLE_NAMES = {
   },
 };
 
+/** Option labels of the music features (supported_options), by Gladys value. */
+export const MUSIC_LABELS = {
+  en: { playback: ['Paused', 'Playing', 'Stopped'], repeat: ['Off', 'All', 'One'] },
+  fr: { playback: ['En pause', 'En lecture', 'Arrêté'], repeat: ['Désactivée', 'Tout', 'Un seul'] },
+  de: { playback: ['Pausiert', 'Wiedergabe', 'Gestoppt'], repeat: ['Aus', 'Alle', 'Einen'] },
+  es: {
+    playback: ['En pausa', 'Reproduciendo', 'Detenido'],
+    repeat: ['Desactivada', 'Todo', 'Uno'],
+  },
+};
+
 /** Connection statuses (Configuration screen, widget). */
 export const STATUS = {
   not_configured: {

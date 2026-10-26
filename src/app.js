@@ -23,6 +23,7 @@ export function registerHandlers(gladys, deps = {}) {
   gladys.onDeviceUpdated((device) => bridge.onDeviceCreated(device));
   gladys.onDeviceDeleted((device) => bridge.onDeviceDeleted(device));
   gladys.onAction('test_connection', () => bridge.testConnection());
+  gladys.onMusicGetArtwork((key) => bridge.getArtwork(key));
 
   for (const [key, handler] of Object.entries(sceneActions(bridge))) {
     gladys.onSceneAction(key, async (fields) => {

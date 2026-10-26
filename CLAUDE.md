@@ -37,6 +37,8 @@ src/bridge.js                     the openHAB connection: inventory, event strea
 src/openhab/client.js             REST API (fetch) and the Server-Sent Events parser
 src/inventory.js                  items -> Gladys devices (equipments), routing tables (pure)
 src/mapping.js                    one item -> its features: read, write, units (pure)
+src/music.js                      the Gladys 5.3 music player of an equipment: channels, values (pure)
+src/artwork-resize.js             artwork under 300 KB in pure JS (copied as is from gladys-mopidy)
 src/publisher.js                  states sent to Gladys within 250 per minute, 12 h heartbeat
 src/scenes.js                     scene actions (send_command, run_rule) and the security guard
 src/widgets.js                    dashboard widget `status`
@@ -45,7 +47,8 @@ src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults)
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
 docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
 test/                             node --test, against the SDK's fake Gladys and a fake openHAB
-test/fixtures/openhab/            items and events of a real openHAB 5.0.1 (demo.items)
+test/fixtures/openhab/            items and events of a real openHAB 5.0.1 (demo.items; music-5.0.1.json:
+                                  a Squeezebox equipment, an offline Sonos, their links and a track change)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -269,6 +272,33 @@ habopen -b`).
   `ItemStateChangedEvent` (`value`, `oldValue`), et `event: alive` toutes les 10 s (chien de garde à 35 s).
   `ItemAddedEvent`/`ItemRemovedEvent`/`ItemUpdatedEvent` → relire la liste. Le timeout de `fetch` ne doit couvrir
   que la réponse, pas le flux.
+- **Lecteur Musique (1.1, Gladys 5.3)** : le premier `Player` d'un équipement en est le lecteur ; les
+  membres de l'équipement (par `isPointOf` **ou** `groupNames` : un item sans tag sémantique n'a **pas** de
+  métadonnée `semantics`) liés à un canal reconnu **du même thing** deviennent title/artist/album/artwork/
+  duration/position/shuffle/repeat/mute ; `stop` sert à lire l'arrêt et à écrire 2. Tout passe par
+  `publishNowPlaying` (rafale d'événements regroupée : 500 ms, 2 s au plus). Un item déjà importé comme
+  appareil à part (un `Switch` sans tag) le reste : une fonctionnalité ne change jamais d'appareil.
+  `/rest/links` est lu à part : une erreur (500, délai) garde les liens précédents, sans rendre les appareils
+  injoignables. Les fonctionnalités pas encore créées dans Gladys ne sont pas publiées (le SDK met l'appareil
+  à jour dans `gladys.devices` et oublie l'instantané avant `onDeviceUpdated`, qui republie tout).
+- **Limites connues** : un canal `stop` lié **après** l'ajout de l'appareil n'ajoute pas l'option « Arrêté »
+  (Gladys ne propose pas « Mettre à jour » pour un changement d'options seul) ; documenté, pas corrigé.
+  **À vérifier sur matériel** : un binding qui laisserait `stop` sur ON pendant une pause publierait
+  « Arrêté » au lieu de « Pause ».
+- **`GET /rest/links` est réservé aux administrateurs** (401 en anonyme, `@RolesAllowed(ADMIN)`), comme
+  `/rest/things` ; un lien vers un canal inexistant est refusé (400) : pour un banc sans matériel, créer le
+  thing (il reste hors ligne, ses canaux existent). Sans liens, les lecteurs restent en 1.0.
+- **Image** : l'état est une URI `data:image/…;base64,…`, dans `/rest/items` comme dans le flux SSE (type
+  `Raw`) ; `PUT /rest/items/<item>/state` en accepte une (202). Le binding Squeezebox laisse `UNDEF` une
+  pochette de 2,5 Mo, met le logo LMS (PNG 512 px) quand la liste est vide, garde le titre à l'arrêt
+  (`stop` = ON, `control` = PAUSE), publie `currentPlayingTime` chaque seconde et passe brièvement par
+  PAUSE / stop ON / durée 0 à chaque changement de morceau. Shuffle/repeat : `Number` à options
+  (« No Repeat », « Repeat Song », « Repeat Playlist ») ; Sonos `repeat` : `String` OFF/ALL/ONE.
+- **Banc musique** : binding installé par `POST /rest/addons/binding-squeezebox/install`,
+  LMS (`lmscommunity/lyrionmusicserver`) et squeezelite dans un Debian ; **squeezelite `-o null` lit un
+  morceau en 0,3 s** (sortie ALSA nulle sans horloge, LMS repasse à l'arrêt) : `squeezelite-pulseaudio` sur
+  un `module-null-sink` joue en temps réel. Codecs chargés à la volée : `libvorbisfile3`, `libmpg123-0t64`,
+  `libmad0`.
 - Choix de conception : un appareil Gladys par **équipement** (sinon par item), identifiants tirés des noms d'items
   (openHAB ne renomme jamais un item) ; groupes, `String`, `DateTime`, `Location` non importés (déclencheur et
   action de scène pour eux) ; serrures, portes de garage et portails en lecture seule sauf option, y compris par

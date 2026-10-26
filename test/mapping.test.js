@@ -136,17 +136,40 @@ test('detectors are read-only; a read-only state description wins', () => {
   assert.equal(boiler.write, undefined);
 });
 
-test('the player: playback state, and commands without feedback', () => {
+test('the player: a writable playback state (1.1), and commands without feedback', () => {
   const roles = mapItem(item('Living_Speaker_Control'));
   assert.deepEqual(
-    roles.map((f) => [f.role, f.spec.has_feedback, f.write?.()]),
+    roles.map((f) => [f.role, f.spec.has_feedback, f.spec.read_only, f.write?.(1)]),
     [
-      ['playback', false, undefined],
-      ['play', false, 'PLAY'],
-      ['pause', false, 'PAUSE'],
-      ['next', false, 'NEXT'],
-      ['previous', false, 'PREVIOUS'],
+      ['playback', true, false, 'PLAY'],
+      ['play', false, false, 'PLAY'],
+      ['pause', false, false, 'PAUSE'],
+      ['next', false, false, 'NEXT'],
+      ['previous', false, false, 'PREVIOUS'],
     ],
+  );
+  const [playback] = roles;
+  // Same id as 1.0; max 1 -> 2 makes Gladys offer "Update" on an added device.
+  assert.deepEqual(
+    [playback.spec.category, playback.spec.type, playback.spec.min, playback.spec.max],
+    ['music', 'playback_state', 0, 2],
+  );
+  assert.deepEqual(
+    playback.spec.supported_options.map((o) => [o.value, o.label]),
+    [
+      [0, 'En pause'],
+      [1, 'En lecture'],
+    ],
+  );
+  // No stop on a Player item: Stop pauses; buffering (3) is never written.
+  assert.deepEqual(
+    [0, 2].map((v) => playback.write(v)),
+    ['PAUSE', 'PAUSE'],
+  );
+  assert.throws(() => playback.write(3), { key: 'unsupported_value' });
+  assert.deepEqual(
+    ['PLAY', 'PAUSE', 'FASTFORWARD', 'NULL'].map((s) => playback.read(s)),
+    [1, 0, 1, null],
   );
 });
 

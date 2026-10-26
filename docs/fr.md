@@ -9,8 +9,8 @@ garde ses bindings (Zigbee, Z-Wave, KNX, Modbus, cloud…). Passez à Gladys à
 votre rythme, ou faites tourner les deux côte à côte. Tout reste sur votre
 réseau local. Non officielle, sans lien avec la fondation openHAB.
 
-> Testée avec openHAB 5.0.1 en Docker et des items virtuels (sans binding), pas
-> encore sur beaucoup d'installations réelles : vos retours sont les bienvenus
+> Testée avec openHAB 5.0.1 en Docker, des items virtuels et un vrai lecteur Squeezebox (binding,
+> Lyrion Music Server, squeezelite), pas encore sur beaucoup d'installations réelles : vos retours sont les bienvenus
 > sur le dépôt GitHub.
 
 ## Prérequis
@@ -18,7 +18,8 @@ réseau local. Non officielle, sans lien avec la fondation openHAB.
 - openHAB 4.x ou 5.x, joignable depuis la machine de Gladys (même réseau, ou un
   VPN).
 - Un **jeton d'API** d'un utilisateur openHAB (de préférence administrateur :
-  lancer une règle depuis une scène l'exige). Si votre openHAB accepte les
+  lancer une règle depuis une scène et
+  afficher titre et pochette des lecteurs l'exigent). Si votre openHAB accepte les
   requêtes sans connexion (son « rôle utilisateur implicite » par défaut), aucun
   jeton n'est nécessaire.
 
@@ -98,7 +99,7 @@ le libellé d'openHAB, avec son emplacement (« Plafonnier (Salon) »).
 | `Rollershutter`                                  | un volet (ou un rideau) : ouvrir, fermer, arrêter, position         |
 | `Rollershutter` porte de garage, portail, porte  | ouvert ou fermé, position (lecture seule sauf autorisation)         |
 | `Contact`                                        | un détecteur d'ouverture                                            |
-| `Player`                                         | état de lecture, lecture, pause, suivant, précédent                 |
+| `Player`                                         | état de lecture (pilotable), commandes ; lecteur Musique ↓          |
 | `Number:Temperature` tagué `Setpoint`            | une consigne de thermostat, dans le min et le max de l'item         |
 | `Number:Temperature`, `Pressure`, `Illuminance`… | température, pression, luminosité, puissance, énergie, tension      |
 |                                                  | courant, volume (gaz, eau), vent, bruit, intensité de pluie         |
@@ -115,6 +116,46 @@ La position d'un volet suit Gladys : 100 % est ouvert (openHAB dit 0 %). Un
 `Number:Dimensionless` sans métadonnée `unit` garde son état en « one » dans
 openHAB (48 % vaut `0.48`) : le pont l'affiche dans l'unité de son motif, comme
 openHAB.
+
+### Lecteur Musique de Gladys 5.3
+
+Un équipement openHAB qui contient un item `Player` devient un vrai lecteur dans le widget
+**Musique** de Gladys : pochette, titre, artiste, album, barre de progression, lecture / pause /
+arrêt, précédent / suivant, déplacement dans le morceau, aléatoire, répétition et sourdine, selon
+les canaux de son binding (Squeezebox, Sonos, Chromecast, Kodi, HEOS, UPnP…). Rien à configurer :
+l'intégration lit les liens entre items et canaux, et rattache au lecteur les items **du même
+équipement** liés à un canal **du même thing** qu'elle reconnaît.
+
+| Rôle                  | Canaux reconnus (exemples)                          | Item                                     |
+| --------------------- | --------------------------------------------------- | ---------------------------------------- |
+| titre                 | `title`, `currenttitle`, `trackName`                | `String`                                 |
+| artiste               | `artist`, `currentartist`                           | `String`                                 |
+| album                 | `album`, `currentalbum`, `albumName`                | `String`                                 |
+| pochette              | `coverartdata`, `currentalbumart`, `image`, `cover` | `Image`                                  |
+| durée, position       | `duration`, `currentPlayingTime`, `currentTime`     | `Number:Time`                            |
+| aléatoire, répétition | `shuffle`, `repeat`, `currentPlaylistRepeat`        | `Switch`, ou `Number`/`String` à options |
+| sourdine, arrêt       | `mute`, `stop`                                      | `Switch`                                 |
+
+Le plus simple : créer l'équipement depuis le thing dans openHAB (**Add Equipment from Thing**) en
+cochant ces canaux. openHAB ne montre les liens qu'à un **administrateur** : sans jeton
+d'administrateur (openHAB anonyme, jeton d'un simple utilisateur), le lecteur garde les commandes de
+la version 1.0, avec un état de lecture pilotable.
+
+Les pochettes viennent de l'item `Image` (openHAB les a déjà téléchargées), réduites si elles
+dépassent 300 Ko : votre navigateur ne contacte jamais openHAB ni le lecteur. Pas de recherche, de
+navigation ni de file d'attente : openHAB n'en a pas de standard. Sans canal `stop`, **Arrêter** met
+en pause (un item `Player` ne sait pas s'arrêter). Ce que le binding garde à l'arrêt (le titre, chez
+Squeezebox) reste affiché. Un canal `stop` lié après l'ajout du lecteur dans Gladys n'ajoute pas
+l'option **Arrêté** : Gladys ne propose pas de mise à jour pour un simple changement d'options (elle
+n'apparaît que sur un lecteur ajouté après le lien).
+
+**Lecteurs ajoutés avec la version 1.0** : leurs nouvelles fonctionnalités arrivent par l'onglet
+**Découverte** : cliquez sur **Mettre à jour** sur l'appareil. Les identifiants ne changent pas
+(lecture, pause, suivant, précédent, volume ; une sourdine déjà importée comme interrupteur devient
+la sourdine du lecteur) : scènes et tableaux de bord continuent. Un item déjà importé comme appareil
+à part (un `Switch` sans tag sémantique) le reste. Une différence dès la mise à jour de
+l'intégration : un lecteur arrêté (canal `stop` actif) ou sans morceau vaut désormais **Arrêté** (2)
+et non plus **Pause** (0) dans l'état de lecture.
 
 ### Widget du tableau de bord
 
@@ -169,8 +210,9 @@ Variables : item, libellé, nouvel état, état précédent.
 
 ## Limites
 
-- Développée contre openHAB 5.0.1 avec des items virtuels : ni binding ni
-  matériel réel. Vos retours sont les bienvenus.
+- Développée contre openHAB 5.0.1 avec des items virtuels, et pour le lecteur Musique un vrai
+  Squeezebox (binding, LMS, squeezelite) et un Sonos hors ligne : pas de matériel Sonos,
+  Chromecast, Kodi ni HEOS réel. Vos retours sont les bienvenus.
 - Les groupes ne sont pas des appareils : un groupe de lampes se commande quand
   même par l'action de scène.
 - Un mode de thermostat, une température de couleur ou une vitesse de

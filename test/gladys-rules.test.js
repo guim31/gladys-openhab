@@ -1,7 +1,8 @@
 // -----------------------------------------------------------------------------
 // Conformity with the Gladys core, on every device discovered from a real
 // openHAB 5.0.1 (test/fixtures/openhab: lights, plugs, shutters, curtains, a
-// garage door, a lock, a player, sensors with units, detectors, setpoints),
+// garage door, a lock, a player, sensors with units, detectors, setpoints, and
+// the music players of test/fixtures/openhab/music-5.0.1.json),
 // with the security commands allowed or not, filtered by group or tag — in
 // every name language.
 //
@@ -15,7 +16,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { createOpenhab } from './helpers/fakeOpenhab.js';
 import { baseConfig, createWorld } from './helpers/world.js';
+
+// The music players of a real openHAB 5.0.1: a Squeezebox and a Sonos with their channels linked.
+const music = JSON.parse(
+  await readFile(new URL('./fixtures/openhab/music-5.0.1.json', import.meta.url), 'utf8'),
+);
 
 const table = JSON.parse(
   await readFile(new URL('./fixtures/gladys-feature-table.json', import.meta.url), 'utf8'),
@@ -26,6 +33,7 @@ const installations = [
   { label: 'security commands allowed', config: { allow_security_commands: true }, least: 25 },
   { label: 'living room group', config: { groups: 'gLiving' }, least: 5 },
   { label: 'Measurement tag', config: { tags: 'Measurement' }, least: 10 },
+  { label: 'music players', config: {}, least: 4, music: true },
 ];
 
 const languages = [undefined, 'en', 'de', 'es'];
@@ -34,6 +42,9 @@ for (const installation of installations) {
   for (const language of languages) {
     test(`every discovered device follows the Gladys rules (${installation.label}, ${language ?? 'default language'})`, async () => {
       const { gladys, app } = await createWorld({
+        ...(installation.music
+          ? { oh: createOpenhab({ items: structuredClone(music.items), links: music.links }) }
+          : {}),
         config: baseConfig({ ...installation.config, ...(language ? { language } : {}) }),
       });
       try {
