@@ -41,6 +41,8 @@ function autoupdate(item, command) {
       return command === 'UP' ? '0' : command === 'DOWN' ? '100' : percentOf(command);
     case 'Player':
       return ['PLAY', 'PAUSE'].includes(command) ? command : null;
+    case 'Image':
+      return null;
     default:
       return command;
   }
@@ -51,10 +53,12 @@ function autoupdate(item, command) {
  * @param {object[]} [options.items]
  * @param {'token'|'basic'|'anonymous'} [options.auth] what openHAB accepts
  * @param {boolean} [options.sse] the event stream answers (false: a proxy refuses it)
+ * @param {object[]} [options.links] GET /rest/links (an administrator token only, like openHAB)
  */
-export function createOpenhab({ items = fixture(), auth = 'token', sse = true } = {}) {
+export function createOpenhab({ items = fixture(), auth = 'token', sse = true, links = [] } = {}) {
   const oh = {
     items,
+    links,
     auth,
     sse,
     down: false,
@@ -134,6 +138,13 @@ export function createOpenhab({ items = fixture(), auth = 'token', sse = true } 
     }
     if (method === 'GET' && pathname === '/rest/') {
       return json({ version: '8', runtimeInfo: { version: oh.version }, measurementSystem: 'SI' });
+    }
+    if (method === 'GET' && pathname === '/rest/links') {
+      // openHAB serves the links to administrators: the token, not anonymous requests.
+      if (init.headers?.Authorization !== `Bearer ${TOKEN}`) {
+        return new Response('', { status: 401 });
+      }
+      return json(structuredClone(oh.links));
     }
     if (method === 'GET' && pathname === '/rest/items') {
       return json(structuredClone(oh.items));

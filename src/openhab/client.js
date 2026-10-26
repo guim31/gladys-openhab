@@ -3,6 +3,7 @@
 //
 //   GET  /rest/                     version (runtimeInfo), measurement system
 //   GET  /rest/items?recursive=false&metadata=semantics
+//   GET  /rest/links                item -> channel links (an administrator token)
 //   POST /rest/items/{name}         a command, as text/plain ("ON", "40", "UP")
 //   POST /rest/rules/{uid}/runnow   run a rule (an administrator token)
 //   GET  /rest/events?topics=...    Server-Sent Events: state changes, items
@@ -23,6 +24,8 @@ export const EVENT_TOPICS = [
   'openhab/items/*/added',
   'openhab/items/*/removed',
   'openhab/items/*/updated',
+  'openhab/links/*/added',
+  'openhab/links/*/removed',
 ];
 
 /** openHAB refused the credentials (401, 403). */
@@ -160,6 +163,34 @@ export class OpenhabClient {
       throw new Error('unexpected answer to /rest/items');
     }
     return items;
+  }
+
+  /**
+   * The channels of each item (music players, src/music.js). openHAB serves
+   * the links to administrators only: null when it refuses (an anonymous
+   * openHAB, a user token), the rest of the bridge works without them.
+   * @returns {Promise<Map<string, string[]> | null>}
+   */
+  async getLinks() {
+    let links;
+    try {
+      links = await this.request('GET', '/rest/links');
+    } catch (err) {
+      if (err instanceof OhAuthError || (err instanceof OhHttpError && err.status === 404)) {
+        return null;
+      }
+      throw err;
+    }
+    if (!Array.isArray(links)) {
+      return null;
+    }
+    const map = new Map();
+    for (const link of links) {
+      if (typeof link?.itemName === 'string' && typeof link?.channelUID === 'string') {
+        map.set(link.itemName, [...(map.get(link.itemName) ?? []), link.channelUID]);
+      }
+    }
+    return map;
   }
 
   sendCommand(name, command) {

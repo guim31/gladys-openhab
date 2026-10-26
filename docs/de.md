@@ -10,8 +10,8 @@ Wechsle in deinem Tempo zu Gladys, oder betreibe beide nebeneinander. Alles
 bleibt in deinem lokalen Netzwerk. Inoffiziell, nicht mit der openHAB
 Foundation verbunden.
 
-> Getestet mit openHAB 5.0.1 in Docker und virtuellen Items (ohne Binding),
-> noch nicht auf vielen echten Installationen: Rückmeldungen sind im
+> Getestet mit openHAB 5.0.1 in Docker, virtuellen Items und einem echten Squeezebox-Player
+> (Binding, Lyrion Music Server, squeezelite), noch nicht auf vielen echten Installationen: Rückmeldungen sind im
 > GitHub-Repository willkommen.
 
 ## Voraussetzungen
@@ -19,7 +19,8 @@ Foundation verbunden.
 - openHAB 4.x oder 5.x, von der Gladys-Maschine aus erreichbar (gleiches Netz
   oder ein VPN).
 - Ein **API-Token** eines openHAB-Benutzers (am besten eines Administrators:
-  Eine Regel aus einer Szene auszuführen braucht das). Nimmt dein openHAB
+  Eine Regel aus einer Szene auszuführen und Titel und Cover der Player anzuzeigen
+  braucht das). Nimmt dein openHAB
   Anfragen ohne Anmeldung an (seine standardmäßige „implizite Benutzerrolle“),
   ist kein Token nötig.
 
@@ -102,7 +103,7 @@ openHAB-Bezeichnung, mit ihrem Ort („Deckenlampe (Wohnzimmer)“).
 | `Rollershutter`                                   | ein Rollladen (oder Vorhang): öffnen, schließen, stopp, Position   |
 | `Rollershutter` Garagentor, Tor, Tür              | offen oder geschlossen, Position (schreibgeschützt, außer erlaubt) |
 | `Contact`                                         | ein Öffnungsmelder                                                 |
-| `Player`                                          | Wiedergabestatus, Wiedergabe, Pause, weiter, zurück                |
+| `Player`                                          | Wiedergabestatus (steuerbar), Befehle; Musik-Player ↓              |
 | `Number:Temperature` mit Tag `Setpoint`           | eine Solltemperatur, im Min und Max des Items                      |
 | `Number:Temperature`, `Pressure`, `Illuminance`…  | Temperatur, Druck, Helligkeit, Leistung, Energie, Spannung         |
 |                                                   | Strom, Volumen (Gas, Wasser), Wind, Lärm, Regenintensität          |
@@ -120,6 +121,44 @@ Die Position eines Rollladens folgt Gladys: 100 % ist offen (openHAB sagt 0 %).
 Eine `Number:Dimensionless` ohne `unit`-Metadaten behält ihren Zustand in
 openHAB in „one“ (48 % ist `0.48`): Die Brücke zeigt sie in der Einheit ihres
 Musters, wie openHAB.
+
+### Musik-Player von Gladys 5.3
+
+Ein openHAB-Equipment mit einem `Player`-Item wird zu einem echten Player im **Musik**-Widget von
+Gladys: Cover, Titel, Interpret, Album, Fortschrittsbalken, Wiedergabe / Pause / Stopp, zurück /
+weiter, Springen im Titel, Zufall, Wiederholung und Stummschaltung, je nach den Kanälen seines
+Bindings (Squeezebox, Sonos, Chromecast, Kodi, HEOS, UPnP…). Nichts einzustellen: Die Integration
+liest die Verknüpfungen zwischen Items und Kanälen und hängt an den Player die Items **desselben
+Equipments**, die mit einem Kanal **desselben Things** verknüpft sind, den sie erkennt.
+
+| Rolle                 | Erkannte Kanäle (Beispiele)                         | Item                                          |
+| --------------------- | --------------------------------------------------- | --------------------------------------------- |
+| Titel                 | `title`, `currenttitle`, `trackName`                | `String`                                      |
+| Interpret             | `artist`, `currentartist`                           | `String`                                      |
+| Album                 | `album`, `currentalbum`, `albumName`                | `String`                                      |
+| Cover                 | `coverartdata`, `currentalbumart`, `image`, `cover` | `Image`                                       |
+| Dauer, Position       | `duration`, `currentPlayingTime`, `currentTime`     | `Number:Time`                                 |
+| Zufall, Wiederholung  | `shuffle`, `repeat`, `currentPlaylistRepeat`        | `Switch`, oder `Number`/`String` mit Optionen |
+| Stummschaltung, Stopp | `mute`, `stop`                                      | `Switch`                                      |
+
+Am einfachsten: Lege das Equipment in openHAB aus dem Thing an (**Add Equipment from Thing**) und
+hake diese Kanäle an. openHAB zeigt die Verknüpfungen nur **Administratoren**: Ohne
+Administrator-Token (anonymes openHAB, Token eines einfachen Benutzers) behält der Player die
+Befehle der Version 1.0, mit einem steuerbaren Wiedergabestatus.
+
+Das Cover kommt aus dem `Image`-Item (openHAB hat es schon heruntergeladen) und wird verkleinert,
+wenn es größer als 300 KB ist: Dein Browser kontaktiert nie openHAB oder den Player. Keine Suche,
+kein Durchsuchen, keine Warteschlange: openHAB hat dafür keinen Standard. Ohne `stop`-Kanal
+pausiert **Stopp** (ein `Player`-Item kann nicht stoppen). Was das Binding beim Stopp behält (den
+Titel bei Squeezebox), bleibt angezeigt.
+
+**Mit Version 1.0 hinzugefügte Player**: Die neuen Funktionen dieser Player kommen über den Reiter
+**Entdecken**: Klicke beim Gerät auf **Aktualisieren**. Die IDs ändern sich nicht (Wiedergabe,
+Pause, weiter, zurück, Lautstärke; eine schon als Schalter importierte Stummschaltung wird die des
+Players): Szenen und Dashboards funktionieren weiter. Ein schon als eigenes Gerät importiertes Item
+(ein `Switch` ohne semantisches Tag) bleibt es. Ein Unterschied ab dem Update der Integration: Ein
+gestoppter Player (`stop`-Kanal an) oder einer ohne Titel ist im Wiedergabestatus jetzt
+**Gestoppt** (2) und nicht mehr **Pausiert** (0).
 
 ### Dashboard-Widget
 
@@ -174,8 +213,9 @@ String, ein Alarmmodus, eine Klingel). Filter: das Item, und der neue Zustand
 
 ## Grenzen
 
-- Entwickelt gegen openHAB 5.0.1 mit virtuellen Items: weder Binding noch echte
-  Hardware. Rückmeldungen willkommen.
+- Entwickelt gegen openHAB 5.0.1 mit virtuellen Items, und für den Musik-Player mit einem
+  echten Squeezebox (Binding, LMS, squeezelite) und einem Offline-Sonos: keine echte Sonos-,
+  Chromecast-, Kodi- oder HEOS-Hardware. Rückmeldungen willkommen.
 - Gruppen sind keine Geräte: Eine Lampengruppe lässt sich trotzdem über die
   Szenen-Aktion steuern.
 - Ein Thermostatmodus, eine Farbtemperatur oder eine Lüftergeschwindigkeit

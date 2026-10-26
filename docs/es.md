@@ -9,7 +9,8 @@ dispositivo, sus estados siguen a openHAB **en directo**, y Gladys lo controla
 nube…). Pase a Gladys a su ritmo, o haga funcionar ambos en paralelo. Todo se
 queda en su red local. No oficial, sin relación con la fundación openHAB.
 
-> Probada con openHAB 5.0.1 en Docker e items virtuales (sin binding), aún no en
+> Probada con openHAB 5.0.1 en Docker, items virtuales y un verdadero reproductor Squeezebox
+> (binding, Lyrion Music Server, squeezelite), aún no en
 > muchas instalaciones reales: sus comentarios son bienvenidos en el
 > repositorio de GitHub.
 
@@ -18,7 +19,8 @@ queda en su red local. No oficial, sin relación con la fundación openHAB.
 - openHAB 4.x o 5.x, accesible desde la máquina de Gladys (misma red, o una
   VPN).
 - Un **token de API** de un usuario de openHAB (preferiblemente administrador:
-  ejecutar una regla desde una escena lo requiere). Si su openHAB acepta
+  ejecutar una regla desde una escena y mostrar título y carátula de los
+  reproductores lo requieren). Si su openHAB acepta
   peticiones sin inicio de sesión (su «rol de usuario implícito» por defecto),
   no se necesita token.
 
@@ -99,7 +101,7 @@ etiqueta de openHAB, con su ubicación («Lámpara de techo (Salón)»).
 | `Rollershutter`                                  | una persiana (o cortina): abrir, cerrar, parar, posición       |
 | `Rollershutter` puerta de garaje, portón, puerta | abierto o cerrado, posición (solo lectura salvo autorización)  |
 | `Contact`                                        | un detector de apertura                                        |
-| `Player`                                         | estado de reproducción, reproducir, pausa, siguiente, anterior |
+| `Player`                                         | estado de reproducción (controlable), comandos; reproductor ↓  |
 | `Number:Temperature` con etiqueta `Setpoint`     | una consigna de termostato, dentro del mín. y máx. del item    |
 | `Number:Temperature`, `Pressure`, `Illuminance`… | temperatura, presión, luz, potencia, energía, tensión          |
 |                                                  | corriente, volumen (gas, agua), viento, ruido, lluvia          |
@@ -116,6 +118,44 @@ La posición de una persiana sigue a Gladys: 100 % es abierta (openHAB dice
 0 %). Un `Number:Dimensionless` sin metadato `unit` guarda su estado en «one»
 en openHAB (48 % es `0.48`): el puente lo muestra en la unidad de su patrón,
 como openHAB.
+
+### Reproductor de Música de Gladys 5.3
+
+Un equipo de openHAB que contiene un item `Player` se convierte en un verdadero reproductor en el
+widget **Música** de Gladys: carátula, título, artista, álbum, barra de progreso, reproducir /
+pausa / detener, anterior / siguiente, desplazamiento en la pista, aleatorio, repetición y
+silencio, según los canales de su binding (Squeezebox, Sonos, Chromecast, Kodi, HEOS, UPnP…). Nada
+que configurar: la integración lee los enlaces entre items y canales, y asocia al reproductor los
+items **del mismo equipo** enlazados a un canal **del mismo thing** que reconoce.
+
+| Función               | Canales reconocidos (ejemplos)                      | Item                                       |
+| --------------------- | --------------------------------------------------- | ------------------------------------------ |
+| título                | `title`, `currenttitle`, `trackName`                | `String`                                   |
+| artista               | `artist`, `currentartist`                           | `String`                                   |
+| álbum                 | `album`, `currentalbum`, `albumName`                | `String`                                   |
+| carátula              | `coverartdata`, `currentalbumart`, `image`, `cover` | `Image`                                    |
+| duración, posición    | `duration`, `currentPlayingTime`, `currentTime`     | `Number:Time`                              |
+| aleatorio, repetición | `shuffle`, `repeat`, `currentPlaylistRepeat`        | `Switch`, o `Number`/`String` con opciones |
+| silencio, parada      | `mute`, `stop`                                      | `Switch`                                   |
+
+Lo más sencillo: cree el equipo desde el thing en openHAB (**Add Equipment from Thing**) marcando
+estos canales. openHAB solo muestra los enlaces a un **administrador**: sin token de administrador
+(openHAB anónimo, token de un usuario simple), el reproductor conserva los comandos de la versión
+1.0, con un estado de reproducción controlable.
+
+Las carátulas vienen del item `Image` (openHAB ya las descargó), reducidas si superan 300 KB: su
+navegador nunca contacta con openHAB ni con el reproductor. Sin búsqueda, navegación ni cola:
+openHAB no tiene un estándar para ellas. Sin canal `stop`, **Detener** pone en pausa (un item
+`Player` no sabe detenerse). Lo que el binding conserva al detenerse (el título, en Squeezebox)
+sigue en pantalla.
+
+**Reproductores añadidos con la versión 1.0**: sus nuevas funciones llegan por la pestaña
+**Descubrir**: haga clic en **Actualizar** en el dispositivo. Los identificadores no cambian
+(reproducir, pausa, siguiente, anterior, volumen; un silencio ya importado como interruptor pasa a
+ser el silencio del reproductor): escenas y paneles siguen funcionando. Un item ya importado como
+dispositivo aparte (un `Switch` sin etiqueta semántica) lo sigue siendo. Una diferencia desde la
+actualización de la integración: un reproductor detenido (canal `stop` activo) o sin pista vale
+ahora **Detenido** (2) y ya no **En pausa** (0) en el estado de reproducción.
 
 ### Widget del panel
 
@@ -171,8 +211,9 @@ Variables: item, etiqueta, nuevo estado, estado anterior.
 
 ## Límites
 
-- Desarrollada contra openHAB 5.0.1 con items virtuales: ni binding ni hardware
-  real. Sus comentarios son bienvenidos.
+- Desarrollada contra openHAB 5.0.1 con items virtuales y, para el reproductor de Música, un
+  verdadero Squeezebox (binding, LMS, squeezelite) y un Sonos sin conexión: sin hardware real
+  Sonos, Chromecast, Kodi ni HEOS. Sus comentarios son bienvenidos.
 - Los grupos no son dispositivos: un grupo de luces se puede controlar aun así
   con la acción de escena.
 - Un modo de termostato, una temperatura de color o una velocidad de

@@ -23,11 +23,11 @@ import {
   DEVICE_FEATURE_TYPES as T,
   DEVICE_FEATURE_UNITS as U,
 } from '@gladysassistant/integration-sdk';
+import { MUSIC_PLAYBACK_STATE, playbackOptions, playbackState } from './music.js';
 
 // Value enums of the Gladys core.
 export const COVER_STATE = { STOP: 0, OPEN: 1, CLOSE: -1 };
 export const OPENING_SENSOR_STATE = { OPEN: 0, CLOSE: 1 };
-export const MUSIC_PLAYBACK_STATE = { PLAYING: 1, PAUSED: 0 };
 
 const finite = (n) => typeof n === 'number' && Number.isFinite(n);
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
@@ -455,23 +455,39 @@ function contactItem() {
   ];
 }
 
-function playerItem() {
+/**
+ * A Player: its playback state, writable since 1.1 (Gladys 5.3: 0 pause,
+ * 1 play, 2 stop; max 1 -> 2 makes Gladys offer "Update"), and the 1.0
+ * one-shot commands. openHAB has no stop on a Player item: 2 pauses, unless
+ * the equipment has a stop channel (src/inventory.js).
+ */
+function playerItem(item, ctx) {
   const command = (role, type, cmd) => ({
     role,
-    spec: { ...binary(C.MUSIC, type), has_feedback: false },
+    spec: { ...binary(C.MUSIC, type), has_feedback: false, keep_history: false },
     write: () => cmd,
   });
   return [
     {
       role: 'playback',
       main: true,
-      spec: binary(C.MUSIC, T.MUSIC.PLAYBACK_STATE),
-      read: (s) =>
-        s === 'PLAY'
-          ? MUSIC_PLAYBACK_STATE.PLAYING
-          : s === 'PAUSE'
-            ? MUSIC_PLAYBACK_STATE.PAUSED
-            : null,
+      spec: {
+        ...binary(C.MUSIC, T.MUSIC.PLAYBACK_STATE),
+        max: 2,
+        keep_history: false,
+        supported_options: playbackOptions(ctx.language, false),
+      },
+      read: (s) => playbackState(s),
+      write: (v) => {
+        const value = Number(v);
+        if (value === MUSIC_PLAYBACK_STATE.PLAYING) {
+          return 'PLAY';
+        }
+        if (value === MUSIC_PLAYBACK_STATE.PAUSED || value === MUSIC_PLAYBACK_STATE.IDLE) {
+          return 'PAUSE';
+        }
+        throw new WriteError('unsupported_value');
+      },
     },
     command('play', T.MUSIC.PLAY, 'PLAY'),
     command('pause', T.MUSIC.PAUSE, 'PAUSE'),
@@ -574,9 +590,13 @@ const TYPES = {
  * @param {boolean} [options.allowSecurity] locks, garage doors and gates controllable
  * @param {object} [options.equipment] the semantic equipment (Group item) the item is a point of
  * @param {boolean} [options.standalone] the item is a Gladys device of its own
+ * @param {string} [options.language] language of the option labels
  * @returns {Array<object> | { skipped: string }}
  */
-export function mapItem(item, { allowSecurity = false, equipment, standalone = true } = {}) {
+export function mapItem(
+  item,
+  { allowSecurity = false, equipment, standalone = true, language = 'fr' } = {},
+) {
   const type = baseType(item);
   const build = TYPES[type];
   if (!build) {
@@ -584,6 +604,7 @@ export function mapItem(item, { allowSecurity = false, equipment, standalone = t
   }
   const ctx = {
     allowSecurity,
+    language,
     sensitive: isSecurityItem(item, equipment),
     standalone,
     words: words(item),

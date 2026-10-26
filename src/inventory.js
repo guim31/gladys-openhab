@@ -13,10 +13,19 @@
 // Selection (configuration): groups (an item or one of its groups, at any
 // depth), tags (of the item or of its equipment), items to exclude. Group
 // items themselves are not imported: they are the locations and equipments.
+//
+// Music players (Gladys 5.3, src/music.js): the first Player item of an
+// equipment is its player; the members of the equipment linked to a
+// recognised channel of the same thing (links: GET /rest/links) become its
+// title, artist, album, artwork, duration, position, shuffle, repeat and mute.
+// Those features and the playback state are published through
+// publishNowPlaying (`music`), not through the routes. An item already
+// imported on another device stays there: a feature never changes device.
 // -----------------------------------------------------------------------------
 
 import { matcher } from './config.js';
 import { baseType, isSecurityItem, mapItem } from './mapping.js';
+import { channelRole, musicFeature, playbackOptions, splitChannel } from './music.js';
 import { ROLE_NAMES } from './texts.js';
 
 const cut = (text, max = 100) => String(text ?? '').slice(0, max);
@@ -30,6 +39,7 @@ const SILENT_TYPES = new Set(['Group']);
  */
 export function buildInventory(items, options) {
   const { externalIds, language = 'fr' } = options;
+  const links = options.links instanceof Map ? options.links : new Map();
   const list = Array.isArray(items) ? items.filter((i) => typeof i?.name === 'string') : [];
   const byName = new Map(list.map((i) => [i.name, i]));
   const excluded = matcher(options.exclude ?? []);
@@ -92,6 +102,66 @@ export function buildInventory(items, options) {
       .filter(Boolean),
   );
 
+  // --- Music players: equipment name -> { player, slots: Map(role -> slot) } ---------
+  const imported = (item) =>
+    Array.isArray(mapItem(item, { allowSecurity: options.allowSecurity, language }));
+  const players = new Map();
+  for (const item of [...list].sort((a, b) => a.name.localeCompare(b.name))) {
+    const equipment = equipmentOf(item);
+    if (baseType(item) !== 'Player' || !equipment || players.has(equipment.name)) {
+      continue;
+    }
+    if (selected(item, equipment)) {
+      players.set(equipment.name, { equipment, player: item, slots: new Map() });
+    }
+  }
+  /** item name -> { profile, slot }: the items that become music features */
+  const musicSlot = new Map();
+  const used = new Set();
+  for (const profile of players.values()) {
+    const { equipment, player, slots } = profile;
+    const things = new Set(
+      (links.get(player.name) ?? []).map((uid) => splitChannel(uid)?.thing).filter(Boolean),
+    );
+    for (const item of list) {
+      const member =
+        equipmentOf(item)?.name === equipment.name ||
+        (item.groupNames ?? []).includes(equipment.name);
+      if (item === player || !member || !selected(item, equipment) || used.has(item.name)) {
+        continue;
+      }
+      // An item imported today as a device of its own keeps it.
+      if (equipmentOf(item)?.name !== equipment.name && imported(item)) {
+        continue;
+      }
+      for (const uid of links.get(item.name) ?? []) {
+        const slot = channelRole(item, uid);
+        // Same thing as the Player item: a second player of the equipment is not mixed in.
+        if (!slot || (things.size > 0 && !things.has(slot.thing))) {
+          continue;
+        }
+        const current = slots.get(slot.role);
+        if (
+          !current ||
+          slot.rank < current.rank ||
+          (slot.rank === current.rank && item.name < current.item.name)
+        ) {
+          if (current) {
+            musicSlot.delete(current.item.name);
+            used.delete(current.item.name);
+          }
+          slots.set(slot.role, { ...slot, item });
+          used.add(item.name);
+          // The stop switch stays what it is: it is only read (idle) and sent ON (stop).
+          if (slot.role !== 'stop') {
+            musicSlot.set(item.name, { profile, slot: { ...slot, item } });
+          }
+        }
+        break;
+      }
+    }
+  }
+
   /** device external id -> { device, names } */
   const devices = new Map();
   /** item name -> [{ featureId, read, throttle }] */
@@ -104,24 +174,66 @@ export function buildInventory(items, options) {
   const itemDevice = new Map();
   /** item names whose commands are a security choice */
   const security = new Set();
+  /** device external id -> { player, stop, title, features: [{ key, featureId, item, read }] } */
+  const music = new Map();
+  /** item name -> device external ids whose now playing it changes */
+  const musicItems = new Map();
+  const followMusic = (name, deviceId) => {
+    const set = musicItems.get(name) ?? new Set();
+    set.add(deviceId);
+    musicItems.set(name, set);
+  };
   const ignored = new Map();
   let itemCount = 0;
 
   for (const item of list) {
     const type = baseType(item);
-    const equipment = equipmentOf(item);
+    const attached = musicSlot.get(item.name);
+    const equipment = attached?.profile.equipment ?? equipmentOf(item);
     if (isSecurityItem(item, equipment)) {
       security.add(item.name);
     }
     if (SILENT_TYPES.has(type) || !selected(item, equipment)) {
       continue;
     }
-    const features = mapItem(item, {
+    let features = mapItem(item, {
       allowSecurity: options.allowSecurity,
       equipment,
+      language,
       // A Dimmer or Color gets its own on/off unless a Switch of its equipment is that on/off.
       standalone: !equipment || !switchPoints.has(equipment.name),
     });
+    const profile = attached?.profile ?? players.get(equipment?.name);
+    if (attached) {
+      // Its external id is kept when it was imported already (a mute Switch: `-state`).
+      const featureRole = Array.isArray(features) ? features[0].role : undefined;
+      features = [
+        musicFeature(item, attached.slot, {
+          language,
+          featureRole,
+          readOnly: item.stateDescription?.readOnly === true,
+        }),
+      ];
+    } else if (profile?.player === item && profile.slots.size > 0 && Array.isArray(features)) {
+      // Without any channel attached, the player stays as 1.0: its state through the routes.
+      const stop = profile.slots.get('stop')?.item;
+      features = features.map((f) => {
+        if (f.role !== 'playback') {
+          return f;
+        }
+        const write = f.write;
+        return {
+          ...f,
+          music: 'playback_state',
+          spec: { ...f.spec, supported_options: playbackOptions(language, Boolean(stop && write)) },
+          // Stop (2): the stop channel of the equipment, when it has one.
+          write:
+            write && stop
+              ? (v, it) => (Number(v) === 2 ? { item: stop.name, command: 'ON' } : write(v, it))
+              : write,
+        };
+      });
+    }
     if (!Array.isArray(features)) {
       ignored.set(features.skipped, (ignored.get(features.skipped) ?? 0) + 1);
       continue;
@@ -167,7 +279,23 @@ export function buildInventory(items, options) {
       entry.names.add(name);
       entry.device.features.push({ name: cut(name), external_id: featureId, ...f.spec });
       featureItem.set(featureId, item.name);
-      if (f.read) {
+      if (f.music) {
+        let entry = music.get(ids.device);
+        if (!entry) {
+          entry = {
+            player: profile.player.name,
+            stop: profile.slots.get('stop')?.item.name,
+            title: profile.slots.get('title')?.item.name,
+            features: [],
+          };
+          music.set(ids.device, entry);
+          for (const name of [entry.player, entry.stop, entry.title].filter(Boolean)) {
+            followMusic(name, ids.device);
+          }
+        }
+        entry.features.push({ key: f.music, featureId, item: item.name, read: f.read });
+        followMusic(item.name, ids.device);
+      } else if (f.read) {
         const itemRoutes = routes.get(item.name) ?? [];
         itemRoutes.push({ featureId, read: f.read, throttle: Boolean(f.throttle) });
         routes.set(item.name, itemRoutes);
@@ -186,6 +314,8 @@ export function buildInventory(items, options) {
     itemDevice,
     itemCount,
     security,
+    music,
+    musicItems,
     ignored: [...ignored.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])),
   };
 }

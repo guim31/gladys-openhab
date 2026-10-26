@@ -10,6 +10,25 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Added
+
+- Gladys 5.3 Music player: an equipment holding a `Player` item becomes a player
+  of the Music widget, with its artwork, title, artist, album, duration and
+  position (seek), shuffle, repeat, mute and stop, taken from the items of that
+  equipment linked to recognised channels of the same thing (Squeezebox, Sonos,
+  Chromecast, Kodi, HEOS, UPnP…), without configuration. Needs an administrator
+  token (openHAB shows the item links to administrators only). Artwork comes from
+  the `Image` item, reduced under 300 KB when needed.
+
+### Changed
+
+- The playback state of a player is now controllable (pause, play, stop) and
+  says **Stopped** (2) when the player is stopped or has nothing loaded, instead
+  of Paused (0): check the scenes that test "= 0". Devices added with 1.0 get the
+  new features through the Discover tab (**Update**); every feature id is kept,
+  a mute switch of the equipment becomes the player's mute.
+- Requires Gladys 5.3.0 or later.
+
 ## [1.0.1] - 2026-10-22
 
 ### Security

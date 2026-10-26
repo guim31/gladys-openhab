@@ -19,6 +19,8 @@ export const FAST_TIMINGS = {
   streamSilence: 60_000,
   streamRetryMax: 80,
   commandReadBack: 20,
+  musicDebounce: 20,
+  musicMaxWait: 80,
 };
 export const FAST_PUBLISHER = { flushInterval: 10 };
 

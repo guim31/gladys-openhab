@@ -6,8 +6,9 @@ devices, their states follow openHAB live, and Gladys controls them through
 openHAB, which keeps its bindings. Local only. Not affiliated with the openHAB
 Foundation.
 
-> Tested against a real openHAB 5.0.1 in Docker with virtual items (no binding,
-> no hardware): feedback from real installations is welcome.
+> Tested against a real openHAB 5.0.1 in Docker with virtual items, and for the music player a
+> real Squeezebox (binding, Lyrion Music Server, squeezelite) and an offline Sonos thing: feedback
+> from real installations is welcome.
 
 ## What it does
 
@@ -20,6 +21,10 @@ Foundation.
   (playback state and commands), `Number` with a dimension (temperature,
   humidity, pressure, illuminance, power, energy, voltage, current, volume,
   speed, noise, CO2, battery) and temperature setpoints (thermostat).
+- **Gladys 5.3 Music player**: an equipment holding a `Player` item becomes a player of the
+  Music widget (artwork, title, artist, album, progress, seek, shuffle, repeat, mute, stop), from
+  the items of that equipment linked to recognised channels of the same thing (Squeezebox, Sonos,
+  Chromecast, Kodi, HEOS, UPnP…). No configuration; needs an administrator token (the links).
 - **Live states** through the openHAB event stream (`/rest/events`, Server-Sent
   Events), with a watchdog on its 10-second "alive" events, and polling every
   30 s when the stream does not get through (reverse proxy).
@@ -33,7 +38,7 @@ Foundation.
 
 ## Requirements
 
-- Gladys Assistant 5.1.0 or later.
+- Gladys Assistant 5.3.0 or later.
 - openHAB 4.x or 5.x reachable from the Gladys machine, and an API token (or a
   user and password with basic authentication enabled, or nothing if openHAB
   accepts anonymous requests).
@@ -54,6 +59,12 @@ In Gladys: **Integrations → Install from GitHub**, address
   the item list again (debounced).
 - Commands are `POST /rest/items/{name}` with a `text/plain` body (`ON`, `40`,
   `UP`, `0,100,50`); openHAB's state change is the feedback.
+- `GET /rest/links` (administrators only) gives the channel of each item: in an equipment
+  holding a `Player`, the items linked to a recognised channel id (`title`, `currenttitle`,
+  `coverartdata`, `currentPlayingTime`, `shuffle`, `repeat`, `mute`, `stop`… of the same thing,
+  `src/music.js`) become its music features, published with `publishNowPlaying` once per burst
+  of changes. `Image` states (data URIs) are the artwork, served from memory and reduced under
+  300 KB in pure JavaScript (`src/artwork-resize.js`, from gladys-mopidy).
 - External ids are built from item names, which openHAB never changes:
   `equipment:<group>` or `item:<name>` for devices, `<item>-<role>` for
   features.
@@ -106,7 +117,9 @@ the multi-arch image to GHCR and publishes the GitHub Release.
 
 Not imported: `String`, `DateTime`, `Location`, `Call`, `Image` and group
 items (watch them with the scene trigger, command them with the scene action),
-and `Number` items without unit nor meaning. Developed without real bindings.
+except the ones a music player uses, and `Number` items without unit nor meaning.
+No catalog, search or queue for players: openHAB has no standard for them. The
+music player was checked with a real Squeezebox only.
 See the [documentation](docs/en.md#limits).
 
 ## License

@@ -14,15 +14,21 @@
 //   watchdog   openHAB sends "alive" every 10 s: a silent stream is reopened;
 //   commands   onSetValue -> POST /rest/items/{name}; the state change that
 //              follows is the feedback;
+//   music      a Player and the items linked to its thing's channels in its
+//              equipment (src/music.js) -> publishNowPlaying, once per burst
+//              of changes; Image items are the artwork, served from memory;
 //   events     watched_items -> trigger `item_changed`;
 //   failures   openHAB lost -> unreachable badges, new attempt after 5 s,
 //              doubling up to 60 s (refused credentials: every 5 minutes).
 // -----------------------------------------------------------------------------
 
+import { createHash } from 'node:crypto';
 import { DEVICE_TRANSPORTS } from '@gladysassistant/integration-sdk';
+import { ArtworkError, prepareArtwork } from './artwork-resize.js';
 import { matcher, normalizeConfig } from './config.js';
 import { buildInventory } from './inventory.js';
 import { WriteError } from './mapping.js';
+import { playbackState, text } from './music.js';
 import { OhAuthError, OhHttpError, OpenhabClient } from './openhab/client.js';
 import { StatePublisher } from './publisher.js';
 import { ERRORS, STATUS, localizedError, testMessage } from './texts.js';
@@ -42,7 +48,16 @@ export const BRIDGE_TIMINGS = {
   streamRetryMax: 5 * 60_000,
   // A command while polling: its result is read back after this delay.
   commandReadBack: 1500,
+  // A track change is a burst of item changes: one now-playing batch after it.
+  musicDebounce: 500,
+  musicMaxWait: 2000,
 };
+
+/** Artworks kept in memory for Gladys to fetch (the current ones and the last few). */
+export const MAX_ARTWORKS = 16;
+
+/** The feature type of each publishNowPlaying key (featureExternalIds). */
+const MUSIC_TYPE = { artwork_url: 'artwork' };
 
 export const TRIGGERS = { ITEM_CHANGED: 'item_changed' };
 export const WIDGET_KEY = 'status';
@@ -59,9 +74,10 @@ const short = (value, max = 255) => {
 };
 
 /** What the inventory is built from: a change here offers the devices again. */
-const structureOf = (items) =>
+const structureOf = (items, links) =>
   JSON.stringify(
     items.map((i) => [
+      links?.get(i.name) ?? null,
       i.name,
       i.type,
       i.label,
@@ -131,6 +147,15 @@ export class Bridge {
     this.eventWindow = [];
     this.eventsDropped = false;
     this.watched = matcher([]);
+    /** item name -> channel UIDs; null when openHAB does not show them */
+    this.links = null;
+    this.linksRefused = false;
+    /** device external id -> { timer, since } of its next now-playing batch */
+    this.musicTimers = new Map();
+    /** artwork key -> { mime, base64 } */
+    this.artworks = new Map();
+    /** item name -> { state, key } of its last artwork */
+    this.artworkOfItem = new Map();
   }
 
   // --- Configuration and lifecycle -----------------------------------------------
@@ -159,6 +184,10 @@ export class Bridge {
     this.changedAt.clear();
     this.transports.clear();
     this.inventory = buildInventory([], { externalIds: this.gladys.externalIds.bind(this.gladys) });
+    this.links = null;
+    this.linksRefused = false;
+    this.artworks.clear();
+    this.artworkOfItem.clear();
     this.publisher.clear();
     this.publisher.start();
     if (this.config.invalidUrl || !this.config.url) {
@@ -181,6 +210,10 @@ export class Bridge {
       this.timers.clearTimeout(timer);
     }
     this.timers.clearInterval(this.tickTimer);
+    for (const { timer } of this.musicTimers.values()) {
+      this.timers.clearTimeout(timer);
+    }
+    this.musicTimers.clear();
     this.reconnectTimer = undefined;
     this.inventoryTimer = undefined;
     this.streamTimer = undefined;
@@ -221,9 +254,11 @@ export class Bridge {
       timings: this.clientTimings,
     });
     let items;
+    let links;
     try {
       const info = await client.getInfo();
       items = await client.getItems();
+      links = await client.getLinks();
       this.version = info.version || undefined;
     } catch (err) {
       if (generation === this.generation) {
@@ -238,6 +273,7 @@ export class Bridge {
     this.client = client;
     this.status = 'online';
     this.delay = this.timings.reconnectMin;
+    this.setLinks(links, items);
     await this.applyItems(items, { force: true });
     this.logger.info(
       `${wasDown ? 'Connected again' : 'Connected'} to openHAB ${this.version ?? ''}: ${this.inventory.devices.length} devices, ${this.inventory.itemCount} items`.replace(
@@ -382,7 +418,15 @@ export class Bridge {
       this.onStateChanged(name, payload);
       return;
     }
-    if (['ItemAddedEvent', 'ItemRemovedEvent', 'ItemUpdatedEvent'].includes(message.type)) {
+    if (
+      [
+        'ItemAddedEvent',
+        'ItemRemovedEvent',
+        'ItemUpdatedEvent',
+        'ItemChannelLinkAddedEvent',
+        'ItemChannelLinkRemovedEvent',
+      ].includes(message.type)
+    ) {
       this.scheduleInventory();
     }
   }
@@ -399,6 +443,9 @@ export class Bridge {
     this.changedAt.set(name, this.now());
     if (this.inventory.routes.has(name)) {
       this.pushItem(name);
+    }
+    for (const deviceId of this.inventory.musicItems.get(name) ?? []) {
+      this.scheduleMusic(deviceId);
     }
     if (this.watched(name) && previous !== value) {
       this.sceneEvent(TRIGGERS.ITEM_CHANGED, {
@@ -434,8 +481,10 @@ export class Bridge {
     }
     const started = this.now();
     let items;
+    let links;
     try {
       items = await this.client.getItems();
+      links = await this.client.getLinks();
     } catch (err) {
       if (generation === this.generation && this.status === 'online') {
         await this.onFailure(generation, err);
@@ -452,7 +501,20 @@ export class Bridge {
         item.state = this.items.get(item.name).state;
       }
     }
+    this.setLinks(links, items);
     await this.applyItems(items);
+  }
+
+  /** The links read with the items: one line when openHAB refuses them and has players. */
+  setLinks(links, items) {
+    this.links = links;
+    const refused = links === null && items.some((i) => String(i?.type) === 'Player');
+    if (refused && !this.linksRefused) {
+      this.logger.info(
+        'openHAB does not show the item links to this token: players without title nor artwork (an administrator token shows them)',
+      );
+    }
+    this.linksRefused = refused;
   }
 
   /** New item list: states updated, devices offered again when the structure changed. */
@@ -460,11 +522,12 @@ export class Bridge {
     const previous = this.items;
     this.items = new Map(items.filter((i) => typeof i?.name === 'string').map((i) => [i.name, i]));
     this.lastRefreshAt = this.now();
-    const structure = structureOf([...this.items.values()]);
+    const structure = structureOf([...this.items.values()], this.links);
     if (force || structure !== this.structure) {
       this.structure = structure;
       this.inventory = buildInventory([...this.items.values()], {
         ...this.config,
+        links: this.links ?? undefined,
         externalIds: this.gladys.externalIds.bind(this.gladys),
       });
       await this.publishDevices();
@@ -565,6 +628,138 @@ export class Bridge {
     for (const name of this.inventory.routes.keys()) {
       this.pushItem(name, created);
     }
+    for (const deviceId of this.inventory.music.keys()) {
+      this.pushMusic(deviceId);
+    }
+  }
+
+  // --- Music players -------------------------------------------------------------
+
+  /**
+   * A track change is a burst of item changes over a second or so (Squeezebox:
+   * PAUSE, stop ON, duration 0, then PLAY, the title, the artist...): one
+   * batch once the burst is over, and at least one every `musicMaxWait`.
+   */
+  scheduleMusic(deviceId) {
+    const now = this.now();
+    const pending = this.musicTimers.get(deviceId);
+    if (pending) {
+      this.timers.clearTimeout(pending.timer);
+    }
+    const since = pending?.since ?? now;
+    const delay = Math.max(
+      0,
+      Math.min(this.timings.musicDebounce, since + this.timings.musicMaxWait - now),
+    );
+    const timer = this.timers.setTimeout(() => {
+      this.musicTimers.delete(deviceId);
+      this.pushMusic(deviceId);
+    }, delay);
+    this.musicTimers.set(deviceId, { timer, since });
+  }
+
+  /**
+   * The artwork of an Image state, as the pseudo-URL given to publishNowPlaying
+   * (its key is artworkKey(url)), the bytes kept for Gladys to fetch. One URL
+   * per content: Gladys caches an artwork an hour by key.
+   */
+  artworkUrl(itemName, image) {
+    const state = this.items.get(itemName)?.state;
+    let known = this.artworkOfItem.get(itemName);
+    if (known?.state !== state) {
+      const hash = createHash('sha1').update(image.base64).digest('hex');
+      const url = `openhab-image:${hash}`;
+      known = { state, url, key: this.gladys.artworkKey(url) };
+      this.artworkOfItem.set(itemName, known);
+    }
+    this.artworks.delete(known.key);
+    this.artworks.set(known.key, image);
+    while (this.artworks.size > MAX_ARTWORKS) {
+      this.artworks.delete(this.artworks.keys().next().value);
+    }
+    return known.url;
+  }
+
+  /** The now-playing snapshot of a player: values by publishNowPlaying key, and the feature ids. */
+  nowPlaying(deviceId) {
+    const entry = this.inventory.music.get(deviceId);
+    if (!entry) {
+      return null;
+    }
+    const stateOf = (name) => (name ? this.items.get(name)?.state : undefined);
+    const title = entry.title ? text(stateOf(entry.title)) : undefined;
+    // Nothing loaded: the texts and the artwork are cleared explicitly.
+    const loaded = title !== '';
+    const values = {};
+    const featureExternalIds = {};
+    for (const f of entry.features) {
+      const item = this.items.get(f.item);
+      if (!item) {
+        continue;
+      }
+      let value;
+      if (f.key === 'playback_state') {
+        value = playbackState(item.state, { stop: stateOf(entry.stop), title });
+      } else if (!loaded && ['title', 'artist', 'album'].includes(f.key)) {
+        value = '';
+      } else if (f.key === 'artwork_url') {
+        const image = loaded ? f.read(item.state) : null;
+        value = image ? this.artworkUrl(f.item, image) : null;
+      } else if (!loaded && f.key === 'position') {
+        value = null;
+      } else if (!loaded && f.key === 'duration') {
+        value = 0;
+      } else {
+        value = f.read(item.state);
+      }
+      if (value === null && f.key !== 'artwork_url') {
+        continue;
+      }
+      values[f.key] = value;
+      featureExternalIds[MUSIC_TYPE[f.key] ?? f.key] = f.featureId;
+    }
+    return { values, featureExternalIds };
+  }
+
+  pushMusic(deviceId) {
+    if (
+      !this.gladys.connected ||
+      !(this.gladys.devices ?? []).some((d) => d.external_id === deviceId)
+    ) {
+      return;
+    }
+    const snapshot = this.nowPlaying(deviceId);
+    if (!snapshot || Object.keys(snapshot.values).length === 0) {
+      return;
+    }
+    const { values, featureExternalIds } = snapshot;
+    Promise.resolve()
+      .then(() => this.gladys.publishNowPlaying(deviceId, values, { featureExternalIds }))
+      .catch((err) => this.logger.debug(`Now playing of ${deviceId} not sent: ${err.message}`));
+  }
+
+  /** onMusicGetArtwork: the bytes of a key, made acceptable to Gladys (<= 300 KB). */
+  async getArtwork(key) {
+    let image = this.artworks.get(key);
+    if (!image) {
+      // Read again from the current items (a restart of Gladys asks for the current ones).
+      for (const deviceId of this.inventory.music.keys()) {
+        this.nowPlaying(deviceId);
+      }
+      image = this.artworks.get(key);
+    }
+    if (!image) {
+      throw new Error('This artwork is no longer the current one');
+    }
+    try {
+      const bytes = await prepareArtwork(Buffer.from(image.base64, 'base64'));
+      return bytes.toString('base64');
+    } catch (err) {
+      if (err instanceof ArtworkError) {
+        throw new Error(`Artwork refused: ${err.message}`, { cause: err });
+      }
+      throw err;
+    }
   }
 
   /** unreachable for every device while openHAB is. */
@@ -614,6 +809,7 @@ export class Bridge {
   async onDeviceCreated(device) {
     // The SDK forgot the values of this device: they are sent again now.
     this.publisher.forget(device.external_id);
+    this.gladys.forgetPublishedStates?.(device.external_id);
     this.transports.delete(device.external_id);
     this.pushAll();
     await this.publishTransports();
@@ -697,8 +893,11 @@ export class Bridge {
       }
       throw err;
     }
-    this.logger.info(`Command: ${command} to ${writer.item}`);
-    await this.sendCommand(writer.item, command);
+    // A write may go to another item of the equipment (Stop: its stop switch).
+    const target = typeof command === 'object' ? command.item : writer.item;
+    const text = typeof command === 'object' ? command.command : command;
+    this.logger.info(`Command: ${text} to ${target}`);
+    await this.sendCommand(target, text);
   }
 
   // --- Scene events --------------------------------------------------------------
