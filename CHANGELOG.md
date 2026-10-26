@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-26
+
 ### Added
 
 - Gladys 5.3 Music player: an equipment holding a `Player` item becomes a player
@@ -61,6 +63,7 @@ the notes of the version's GitHub Release.
 - "Test the connection" action, listing the item types not imported.
 - Texts and documentation in English, French, German and Spanish.
 
-[Unreleased]: https://github.com/guim31/gladys-openhab/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/guim31/gladys-openhab/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/guim31/gladys-openhab/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/guim31/gladys-openhab/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/guim31/gladys-openhab/releases/tag/v1.0.0
